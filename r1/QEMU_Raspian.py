@@ -2,6 +2,7 @@ import subprocess
 import os
 from sys import argv
 from time import sleep
+import random
 
 help_str = str("\n " +
                " use -rm to remove QEMU file from this dir \n " +
@@ -21,8 +22,8 @@ buster = dict(
     kern_loc="wget https://github.com/dhruvvyas90/qemu-rpi-kernel/blob/master/kernel-qemu-4.19.50-buster?raw=true -O ",
     kern='kernel-qemu-4.19.50-buster',
     url="wget http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/",
-    zip='2019-09-26-raspbian-buster.zip',
-    fs='2019-09-26-raspbian-buster.img',
+    zip='2019-07-10-raspbian-buster.zip',
+    fs='2019-07-10-raspbian-buster.img',
     qcow='buster.qcow2'
 )
 
@@ -41,7 +42,7 @@ stretch = dict(
     kern_loc="wget https://github.com/dhruvvyas90/qemu-rpi-kernel/blob/master/kernel-qemu-4.14.79-stretch?raw=true -O ",
     kern='kernel-qemu-4.14.79-stretch',
     url="wget http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-04-09/",
-    zip='2019-04-08-raspbian-stretch.zip',
+    zip='2019-04-08-raspbian-stretch',
     fs='2019-04-08-raspbian-stretch.img',
     qcow='stretch.qcow2'
 )
@@ -51,10 +52,19 @@ stretchlite = dict(
     kern_loc="wget https://github.com/dhruvvyas90/qemu-rpi-kernel/blob/master/kernel-qemu-4.14.79-stretch?raw=true -O ",
     kern='kernel-qemu-4.14.79-stretch',
     url="wget http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/",
-    zip='2018-11-13-raspbian-stretch-lite.zip',
+    zip='2018-11-13-raspbian-stretch-lite',
     fs='2018-11-13-raspbian-stretch-lite.img',
     qcow='stretchlite.qcow2'
 )
+
+
+def bash(cmd):
+    proc = subprocess.Popen(cmd,
+                            shell=True,
+                            executable='/bin/bash',
+                            stdout=subprocess.PIPE,
+                            encoding='utf-8')
+    return proc.pid
 
 
 def rm():  # benefit of the doubt- some other file could be in here besides this script
@@ -68,16 +78,27 @@ def rm():  # benefit of the doubt- some other file could be in here besides this
             os.remove(file)
 
 
-def new_mac():
-    output = subprocess.run(['./MAC.sh'], stdout=subprocess.PIPE)
-    return output.stdout.decode('utf-8')[1:17]
+def rand_hex(l: int, return_string=''):
+    for char in range(l):
+        return_string = return_string + (random.choice("0123456789ABCDEF"))
+    return return_string
+
+
+def newmac():
+    mac = ''
+    for pair in range(5):
+        mac += rand_hex(2) + ':'
+    mac += rand_hex(2)
+    return mac
 
 
 def bash(cmd):
-    subprocess.Popen(cmd, shell=True, executable='/bin/bash')
-
-
-# TODO: setup apt utils script- brctl, tap / tun, etc
+    proc = subprocess.Popen(cmd,
+                            shell=True,
+                            executable='/bin/bash',
+                            stdout=subprocess.PIPE,
+                            encoding='utf-8')
+    return proc.pid
 
 
 def argtype():
@@ -99,8 +120,8 @@ def argtype():
 def main(rtype):
 
     command = ' '
-    my_mac = new_mac()
-
+    my_mac = newmac()
+    """
     if not os.path.exists(rtype['qcow']):
 
         if not os.path.exists(rtype['fs']):
@@ -118,16 +139,16 @@ def main(rtype):
                 command += str(rtype['url'] + rtype['zip'] + ' && ')
 
             command += str(' unzip ' + rtype['zip'] + ' && ')
+    """
 
-        command += str('qemu-img convert -f raw -O qcow2 ' + rtype['fs'] + ' ' + rtype['qcow'] + ' && ' +
+    command += str('qemu-img convert -f raw -O qcow2 ' + rtype['fs'] + ' ' + rtype['qcow'] + ' && ' +
                        'qemu-img resize ' + rtype['qcow'] + ' +16G && ')
 
-    command += str("sudo qemu-system-arm -kernel " + rtype['kern'] +
+    command += str("qemu-system-arm -kernel " + buster['kern'] +
                    " -cpu arm1176 -m 256 -M versatilepb " +
                    " -dtb " + 'versatile-pb.dtb ' + "-no-reboot " +
                    ' -serial stdio -append "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" ' +
-                   " -hda " + rtype['qcow'] +
-                   " -netdev tap,id=net0 -device e1000,netdev=net0,mac=" + my_mac)
+                   " -hda " + buster['qcow'])
 
     # print(str('command = ' + command))  # debug only
     bash(command)
