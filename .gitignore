@@ -1,0 +1,14 @@
+# local build dirs:
+p1
+p2
+p3
+
+# common:
+.DS_Store
+.idea
+OctoPrint
+*.img
+*.zip
+*.qcow2
+*.dtb
+wget-log
