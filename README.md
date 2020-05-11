@@ -1,93 +1,31 @@
-# Using QEMU for Raspian ARM         
-     
-*single ARM guest configuration tested on Mac OSX 10.14.6 host*        
-*experimental multi-guest support for Ubuntu 18.04 host (Gnome / Budgie) over virtual network bridge*    
 
+***For the time being:***
+
+<br>
     
-Emulates a variety of Raspian releases on proper ARM hardware with QEMU.  
+*thanks @teras for pinging me-* Until this repo is given a thorough cleaning out (Broken!), please stick with qemu from the shell, as below.
 
-***Prerequisites:***    
-
-QEMU and wget (OSX homebrew)
-
-```bash
-# OSX:
+```shell script
+# make sure you've got qemu-arm and wget-
+# for ubuntu:
+sudo apt-get install qemu-system-arm -y
+# or osx:
 brew install qemu wget 
 
-# Ubuntu:
-sudo apt-get install qemu-system-arm -y
-```      
+# snag the kernel bits:
+wget https://raw.githubusercontent.com/dhruvvyas90/qemu-rpi-kernel/master/kernel-qemu-4.14.79-stretch -O kernel-qemu-4.14.79-stretch 
+# (this one may take a while):
+wget https://raw.githubusercontent.com/dhruvvyas90/qemu-rpi-kernel/master/versatile-pb.dtb -O versatile-pb.dtb
 
-Get the Python3 CLI in this repo:
-```bash
-wget https://raw.githubusercontent.com/Jesssullivan/USBoN/master/QEMU_Raspian.py
-```  
-- - -
+# get an image:
+wget http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip
 
-***info - multiple guests over virtual bridge (.deb distros only):***                       
+# unzip the zipped image:
+unzip "2018-11-13-raspbian-stretch-lite.zip" 
 
-- multiple guests get unique MAC addresses  
-- see /setupHostDepends.sh for required packages    
-    
-```bash
+# convert to qcow for qemu goodness:
+qemu-img convert -f raw -O qcow2 2018-11-13-raspbian-stretch-lite.img stretchlite.qcow2 && qemu-img resize stretchlite.qcow2 +8G
 
-# permiss shell scripts with ``` sudo chmod u+x ... ``` 
-
-sudo ./setupHostDepends.sh
-
-# switch to bridge br0:
-sudo ./UPbrctl.sh
-
-# back to normal host network:
-sudo ./DOWNbrctl.sh
-
-# add network bits for host:
-rm /etc/network/interfaces  # existing lo file
-cp interfaces /etc/network/  # replace from this repo
-cp qemu-ifup /etc/
-
-```     
-
-- - -
-***usage - single guest:***               
-
-After the first launch, it will launch from the persistent .qcow2 image.         
-
-With no arguments & in a new folder, Raspian "stretch-lite" (no desktop environment) will be:        
-    - downloaded as a zip archive with a release kernel      
-    - unarchived --> to img      
-    - converted to a Qcow2 with 8gb allocated as disk        
-    - launched from Qcow2 as administrator       
-     
-```bash
-sudo python3 QEMU_Raspian.py 
-```             
- 
-***optional guest configuration arguments:***       
-    
--  ``` -h ```  prints CLI usage help         
-- ``` -rm ``` removes ALL files added in dir with QEMU_Raspian.py        
-- ``` stretch ``` uses standard graphical stretch release with GUI        
-- ```stretchlite ``` for stretchlite release [default!]          
-- ``` buster ``` for standard graphical buster release [YMMV]     
-- ```busterlite``` for busterlite release [YMMV]            
-    
-```bash
-# examples:
-sudo python3 QEMU_Raspian.py busterlite
-python3 QEMU_Raspian -h  # print help
+# launch from qcow:
+qemu-system-arm -kernel kernel-qemu-4.14.79-stretch -cpu arm1176 -m 256 -M versatilepb -dtb versatile-pb.dtb -no-reboot -serial stdio -append "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda stretchlite.qcow2
 ```
-     
-- - -     
-
-```
-# YMMV: burn / backup as .img:     
-
-to burn the new image back to an SD card for a hardware Pi:     
-
-# bash
-qemu-img convert -f qcow2 -O raw file.qcow2 file.img
-```  
-- - -
-
-![Alt text](imgs.png?raw=true)
