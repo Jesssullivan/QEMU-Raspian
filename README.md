@@ -29,3 +29,5 @@ qemu-img convert -f raw -O qcow2 2018-11-13-raspbian-stretch-lite.img stretchlit
 # launch from qcow:
 qemu-system-arm -kernel kernel-qemu-4.14.79-stretch -cpu arm1176 -m 256 -M versatilepb -dtb versatile-pb.dtb -no-reboot -serial stdio -append "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda stretchlite.qcow2
 ```
+    
+![Alt text](imgs.png?raw=true)
