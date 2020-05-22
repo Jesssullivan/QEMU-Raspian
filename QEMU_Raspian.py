@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Emulate & organize a variety of common ARM Raspbian distributions with QEMU
 Written by Jess Sullivan
