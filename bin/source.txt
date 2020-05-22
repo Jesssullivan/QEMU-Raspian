@@ -1,0 +1,2 @@
+Binaries obtained from:
+https://github.com/dhruvvyas90/qemu-rpi-kernel
