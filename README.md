@@ -1,9 +1,25 @@
-
-***For the time being:***
-
-<br>
+*05/21/2020- completely rewritten w/ PyInquirer*
     
-*thanks @teras for pinging me-* Until this repo is given a thorough cleaning out (Broken!), please stick with qemu from the shell, as below.
+<br>
+   
+ ```shell script
+# clone:
+git clone https://github.com/Jesssullivan/QEMU-Raspian
+cd QEMU-Raspian
+
+# preheat:
+pip install -r requirements.txt
+
+# begin cooking some Pi:
+python3 QEMU_Raspian.py
+```
+
+The general plan is to consolidate many more Raspberry Pi / Makerspace automation scripts into this convenient, shareable CLI layout with PyInquirer.
+
+       
+![Alt text](imgs.png?raw=true)
+   
+*if you just want some shell bits:*
 
 ```shell script
 # make sure you've got qemu-arm and wget-
@@ -29,5 +45,4 @@ qemu-img convert -f raw -O qcow2 2018-11-13-raspbian-stretch-lite.img stretchlit
 # launch from qcow:
 qemu-system-arm -kernel kernel-qemu-4.14.79-stretch -cpu arm1176 -m 256 -M versatilepb -dtb versatile-pb.dtb -no-reboot -serial stdio -append "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda stretchlite.qcow2
 ```
-    
-![Alt text](imgs.png?raw=true)
+

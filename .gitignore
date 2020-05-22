@@ -4,11 +4,11 @@ p2
 p3
 
 # common:
+.broken
 .DS_Store
 .idea
 OctoPrint
 *.img
-*.zip
-*.qcow2
-*.dtb
+**.zip
+**.qcow2
 wget-log
