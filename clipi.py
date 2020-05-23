@@ -1,82 +1,112 @@
 #!/usr/bin/env python3
 """
-Emulate & organize a variety of common ARM Raspbian distributions with QEMU
+Emulate, organize, burn, manage a variety of distributions for Raspberry Pi
 Written by Jess Sullivan
 @ https://github.com/Jesssullivan/QEMU-Raspian
 @ https://transscendsurvival.org/
 """
-from PyInquirer import prompt, Separator
-from time import sleep
+
 import sys
 import os
-from sys import platform
+import socket
 import subprocess
+from PyInquirer import prompt
+from time import sleep
+from sys import platform
 from zipfile import ZipFile
 from sources import source
 
 
-def src_zip(img_text):
-    return img_text.split('/')[-1]
+# methods do.* are generic, shared among classes
+class do(object):
+
+    @classmethod
+    def src_zip(cls, img_text):
+        return img_text.split('/')[-1]
+
+    @classmethod
+    def src_img(cls, img_text):
+        return cls.src_zip(img_text).split('.zip')[0] + '.img'
+
+    @classmethod
+    def src_qcow(cls, img_text):
+        return cls.src_zip(img_text).split('.zip')[0] + '.qcow2'
+
+    @classmethod
+    def src_name(cls, img_text):
+        return cls.src_zip(img_text).split('.zip')[0]
+
+    @classmethod
+    def unzip(cls, input, output):
+        with ZipFile(input, 'r') as zip_ref:
+            zip_ref.extractall(output)
+
+    @classmethod
+    def restart(cls):
+        # behavior to cleanup & restart at main menu:
+        for x in range(3):
+            print('...\n')
+            sleep(.1)
+        print('complete. \n\n')
+        clipi_path = os.path.abspath(__file__)
+        sys.stdout.flush()
+        os.execl(sys.executable, clipi_path, *sys.argv)
 
 
-def src_img(img_text):
-    return src_zip(img_text).split('.zip')[0] + '.img'
+class Utilities(object):
 
+    @classmethod
+    def nmap_search(cls):
 
-def src_qcow(img_text):
-    return src_zip(img_text).split('.zip')[0] + '.qcow2'
+        print('Uses nmap to find local Pi devices by MAC address....')
+        # just to make sure nmap is available
+        QSetup.main_install()
 
+        # find the first two ip quadrants from which to increment:
+        get_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        get_socket.connect(("8.8.8.8", 80))
+        ip_quad = str(get_socket.getsockname()[0]).split('.')
+        get_socket.close()
 
-def src_name(img_text):
-    return src_zip(img_text).split('.zip')[0]
+        # execute nmap:
+        print('\n ...starting search for Pi devices, this may take a while... \n')
+        cmd = "sudo nmap -sP " \
+              + ip_quad[0] + \
+              "." + ip_quad[1] + ".1.1/24" + \
+              " | awk '/^Nmap/{ip=$NF}/B8:27:EB/{print ip}'"
+        subprocess.Popen(cmd, shell=True).wait()
+        print('\n ...search complete. \n')
 
+    @classmethod
+    def add_to_bash(cls):
+        print('adding alias....')
+        clipi_line = "\\'~/.clipi/clipi.py\\'"
 
-def ask_opts_1():
-    opts_1 = {
-        'type': 'list',
-        'name': 'opts_1',
-        'message': 'Options:',
-        'choices': [
-            'Launch a Pi emulation',
-            'Burn a bootable disk image',
-            'Find Pi devices on this network',
-            'Utilities...'
-        ]
-    }
-    answers = prompt(opts_1)
-    return answers['opts_1']
+        if platform == "linux" or platform == "linux2":
+            print("environment: detected Linux, continuing...")
+            cmd = "echo alias clipi=" + clipi_line + " >> ~/.bashrc "
+            subprocess.Popen(cmd, shell=True).wait()
 
+        if platform == 'darwin':
+            print("environment: detected Mac OSX, continuing...")
+            cmd = "echo alias clipi=" + clipi_line + " >> ~/.bash_profile "
+            subprocess.Popen(cmd, shell=True).wait()
 
-def utils():
-    utils_1 = {
-        'type': 'list',
-        'name': 'utils_1',
-        'message': 'Options:',
-        'choices': [
-            'Cleanup...',
-            'Install clipi as alias',
-            'Check / install dependencies',
-            'TODO: Launch some emulations w/ virtual network bridge'
-        ]
-    }
-    answers = prompt(utils_1)
-    return answers['utils_1']
+    @classmethod
+    def bash_alias_update(cls):
+        # adds .directory for bash version, separate from git:
+        if not os.path.exists('~/.clipi'):
+            subprocess.Popen("mkdir ~/.clipi", shell=True).wait()
 
+        print('copying clipi.py to ~/.clipi ....')
+        subprocess.Popen('sudo cp -rf ' + os.path.relpath('clipi.py') +
+                         ' ~/.clipi/clipi.py', shell=True).wait()
 
-def launch_std():
-    launches = {
-        'type': 'list',
-        'name': 'launches',
-        'message': 'Select an image....',
-        'choices': source
-    }
-    answers = prompt(launches)
-    return source[answers['launches']]
+        print('copying sources.py to ~.clipi ....')
+        subprocess.Popen('sudo cp -rf ' + os.path.relpath('sources.py') +
+                         ' ~/.clipi/sources.py', shell=True).wait()
 
-
-def unzip(input, output):
-    with ZipFile(input, 'r') as zip_ref:
-        zip_ref.extractall(output)
+    subprocess.Popen('sudo chmod 775 ~/.clipi/clipi.py', shell=True).wait()
 
 
 class ddWriter(object):
@@ -112,7 +142,7 @@ class ddWriter(object):
               'copy file `ssh` and a configured `wpa_supplicant.conf` to /boot :)')
 
 
-# qemu depends & setup functions:
+# setup functions:
 class QSetup(object):
 
     @classmethod
@@ -127,14 +157,14 @@ class QSetup(object):
 
     @classmethod
     def ask_brew(cls):
-        brewYN = {
+        brew_yn = {
             'type': 'list',
             'name': 'brew',
             'message': 'install Brew?',
             'choices': ['Yes',
                         'No'],
         }
-        result = prompt(brewYN)
+        result = prompt(brew_yn)
         if result == 'Yes':
             return True
         else:
@@ -145,14 +175,15 @@ class QSetup(object):
         if platform == "linux" or platform == "linux2":
             print("environment: detected Linux, continuing...")
             subprocess.Popen('sudo apt-get install ' + dep + ' -y', shell=True).wait()
-            # todo: prompt for other package manager options
+            # todo: maybe prompt for other package manager options
+
         elif platform == 'darwin':
             print("environment: detected osx, not completely tested yet, YMMV")
             if cls.is_installed('brew'):
                 print('attempting brew install of ' + dep + '...... \n')
                 subprocess.Popen('brew install' + dep, shell=True).wait()
             else:
-                print("brew package manager not detected either, would you like to install brew now?")
+                print("brew package manager not detected, would you like to install brew now?")
                 if cls.ask_brew():
                     brew_string = str(
                         '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)')
@@ -165,7 +196,7 @@ class QSetup(object):
             os.mkdir(dirname)
 
     @classmethod
-    def ensure_bins(cls):  # todo: make all this directory handling less brittle
+    def ensure_bins(cls):
         if not os.path.isdir('bin'):
             os.mkdir('bin')
             print('TODO: go fetch binaries from github plz')
@@ -209,10 +240,10 @@ class launcher(object):
 
     @classmethod
     def ensure_img(cls, image):
-        image_dir = os.path.join('image/', src_name(image))
-        image_zip = os.path.join(image_dir, src_zip(image))
-        image_img = os.path.join(image_dir, src_img(image))
-        image_qcow = os.path.join(image_dir, src_qcow(image))
+        image_dir = os.path.join('image/', do.src_name(image))
+        image_zip = os.path.join(image_dir, do.src_zip(image))
+        image_img = os.path.join(image_dir, do.src_img(image))
+        image_qcow = os.path.join(image_dir, do.src_qcow(image))
 
         for x in range(7):
 
@@ -230,7 +261,7 @@ class launcher(object):
                 cls.do_qemu_expand(image_qcow)
 
             if os.path.isfile(image_zip):
-                unzip(image_zip, image_dir)
+                do.unzip(image_zip, image_dir)
 
             else:
                 subprocess.Popen(str('wget -O' + image_zip + ' ' + image),
@@ -248,7 +279,52 @@ class launcher(object):
                          shell=True).wait()
 
 
-def menu():
+def ask_opts_1():
+    opts_1 = {
+        'type': 'list',
+        'name': 'opts_1',
+        'message': 'Options:',
+        'choices': [
+            'Launch a Pi emulation',
+            'Burn a bootable disk image',
+            'Find Pi devices on this network',
+            'Utilities...'
+        ]
+    }
+    answers = prompt(opts_1)
+    return answers['opts_1']
+
+
+## Menus ##
+
+def utils_menu():
+    utils_1 = {
+        'type': 'list',
+        'name': 'utils_1',
+        'message': 'Options:',
+        'choices': [
+            'Cleanup...',
+            'Install clipi as alias',
+            'Check / install dependencies',
+            'TODO: Launch some emulations w/ virtual network bridge'
+        ]
+    }
+    answers = prompt(utils_1)
+    return answers['utils_1']
+
+
+def launch_std():
+    launches = {
+        'type': 'list',
+        'name': 'launches',
+        'message': 'Select an image....',
+        'choices': source
+    }
+    answers = prompt(launches)
+    return source[answers['launches']]
+
+
+def menu():  # this is the main, initial menu
     op1 = ask_opts_1()
     if op1 == 'Launch a Pi emulation':
         # check if we are able to run:
@@ -265,20 +341,21 @@ def menu():
         response_image = launch_std()
         target_disk = ddWriter.what_disk()
         launcher.ensure_img(response_image)
-        image_dir = os.path.join('image/', src_name(response_image))
-        result = os.path.join(image_dir, src_img(response_image))
+        image_dir = os.path.join('image/', do.src_name(response_image))
+        result = os.path.join(image_dir, do.src_img(response_image))
         ddWriter.dd_write(sd_disk=target_disk, image=result)
+        do.restart()
 
     if op1 == 'Find Pi devices on this network':
-        print('Uses nmap to find local Pi devices by MAC address....')
-        QSetup.main_install()
-        cmd = "sudo nmap -sP 10.206.1.1/24 | awk '/^Nmap/{ip=$NF}/B8:27:EB/{print ip}'"
-        subprocess.Popen(cmd, shell=True).wait()
+        Utilities.nmap_search()
+        do.restart()
 
     if op1 == 'Utilities...':
         print('Additional settings:')
-        response = utils()
+        response = utils_menu()  # shows utils_menu() menu
+
         if response == 'Cleanup...':
+            # double checks w/ a confirm:
             rm = {
                 'type': 'confirm',
                 'message': 'Are you sure? (This completely removes the /image directory!)',
@@ -289,10 +366,12 @@ def menu():
             if checked:
                 # removes as admin from shell to avoid a wonky super python user xD
                 subprocess.Popen('sudo rm -rf image', shell=True).wait()
+                do.restart()
 
         if response == 'Install clipi as alias':
             print('Adds `clipi` alias to your shell \n' +
                   '( Also copies clipi.py & sources.py to ~/.clipi)')
+            # double checks w/ a confirm:
             alias = {
                 'type': 'confirm',
                 'message': "Are you sure? \n "
@@ -302,37 +381,15 @@ def menu():
             }
             checked = prompt(alias)
             if checked:
-                if not os.path.exists('~/.clipi'):
-                    subprocess.Popen("mkdir ~/.clipi", shell=True).wait()
-
-                print('copying clipi.py to ~/.clipi ....')
-                subprocess.Popen('sudo cp -rf ' + os.path.relpath('clipi.py') +
-                                 ' ~/.clipi/clipi.py', shell=True).wait()
-
-                print('copying sources.py to ~.clipi ....')
-                subprocess.Popen('sudo cp -rf ' + os.path.relpath('sources.py') +
-                                 ' ~/.clipi/sources.py', shell=True).wait()
-
-                print('adding alias....')
-                clipi_line = "\\'~/.clipi/clipi.py\\'"
-
-                if platform == "linux" or platform == "linux2":
-                    print("environment: detected Linux, continuing...")
-                    cmd = "echo alias clipi="+clipi_line+" >> ~/.bashrc "
-                    subprocess.Popen(cmd, shell=True).wait()
-
-                if platform == 'darwin':
-                    print("environment: detected Mac OSX, continuing...")
-                    cmd = "echo alias clipi=" + clipi_line + " >> ~/.bash_profile "
-                    subprocess.Popen(cmd, shell=True).wait()
-
-            subprocess.Popen('sudo chmod 775 ~/.clipi/clipi.py', shell=True).wait()
-            return print('please source or restart your shell for changes to take effect')
+                Utilities.bash_alias_update()
+                Utilities.add_to_bash()
+                print('please source or restart your shell for changes to take effect')
 
         if response == 'Check / install dependencies':
             print(str('checking all clipi.py depends for your ' +
                       platform + ' - based machine....'))
             QSetup.main_install()
+            do.restart()
 
 
 if __name__ == '__main__':
