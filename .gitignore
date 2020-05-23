@@ -1,16 +1,13 @@
 # local build dirs:
-p1
-p2
-p3
 image
 qemu
+OctoPrint
 
 # common:
+__pycache__
 .broken
 .DS_Store
 .idea
-OctoPrint
-*.img
+**.img
 **.zip
 **.qcow2
-wget-log
