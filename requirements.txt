@@ -1,3 +1,5 @@
-# pip install -r requirements.txt
+# `pip install -r requirements.txt`
+
+# todo: distribute `prompt` instead of relying on pip
 PyInquirer
 # blkinfo
