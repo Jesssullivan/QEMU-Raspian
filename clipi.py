@@ -106,7 +106,7 @@ class Utilities(object):
         subprocess.Popen('sudo cp -rf ' + os.path.relpath('sources.py') +
                          ' ~/.clipi/sources.py', shell=True).wait()
 
-    subprocess.Popen('sudo chmod 775 ~/.clipi/clipi.py', shell=True).wait()
+        subprocess.Popen('sudo chmod 775 ~/.clipi/clipi.py', shell=True).wait()
 
 
 class ddWriter(object):
@@ -279,6 +279,8 @@ class launcher(object):
                          shell=True).wait()
 
 
+## Menus ##
+
 def ask_opts_1():
     opts_1 = {
         'type': 'list',
@@ -294,8 +296,6 @@ def ask_opts_1():
     answers = prompt(opts_1)
     return answers['opts_1']
 
-
-## Menus ##
 
 def utils_menu():
     utils_1 = {
