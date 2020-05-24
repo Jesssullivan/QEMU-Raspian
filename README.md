@@ -27,7 +27,7 @@
 
 
 ***Manage:***   
-`clipi` can find the addresses of all the  Raspberry Pi devices on your local network.   Need to do this a lot?  `clipi` can install itself as a Bash alias, fire it up and whenever you want xD
+`clipi` can find the addresses of all the  Raspberry Pi devices on your local network.   Need to do this a lot?  `clipi` can install itself as a Bash alias, fire it up whenever you want xD
 
 - - -
 
