@@ -16,7 +16,8 @@ source = {
                    '-raspbian-buster-lite.zip',
     'buster_desktop': 'http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-07-10-raspbian'
                       '-buster.zip',
-    'motioneye_os': 'https://github.com/ccrisan/motioneyeos/releases/download/20190911/motioneyeos-raspberrypi',
-                   '-20190911.img.xz'
-    'octoprint': 'https://octopi.octoprint.org/latest'
+    'motioneye_os': 'https://github.com/ccrisan/motioneyeos/releases/download/20190911/motioneyeos-raspberrypi'
+                   '-20190911.img.xz',
+    'dietpi': 'https://dietpi.com/downloads/images/DietPi_RPi-ARMv6-Buster.7z',
+    #  'octoprint': 'https://octopi.octoprint.org/latest'
 }

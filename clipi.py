@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Emulate, organize, burn, manage a variety of distributions for Raspberry Pi
+Emulate, organize, burn, manage a variety of sbc distributions for Raspberry Pi
 Written by Jess Sullivan
-@ https://github.com/Jesssullivan/QEMU-Raspian
+@ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
 
@@ -22,24 +22,47 @@ class do(object):
 
     @classmethod
     def src_zip(cls, img_text):
+
         return img_text.split('/')[-1]
 
     @classmethod
     def src_img(cls, img_text):
-        return cls.src_zip(img_text).split('.zip')[0] + '.img'
+        return cls.src_zip(img_text).split('.')[0] + '.img'
 
     @classmethod
     def src_qcow(cls, img_text):
-        return cls.src_zip(img_text).split('.zip')[0] + '.qcow2'
+        return cls.src_zip(img_text).split('.')[0] + '.qcow2'
 
     @classmethod
     def src_name(cls, img_text):
-        return cls.src_zip(img_text).split('.zip')[0]
+        return cls.src_zip(img_text).split('.')[0]
+
+    @classmethod
+    def src_output(cls, img_text):
+        return str('image/' + cls.src_name(img_text) +
+                   '/' + 'output_' + cls.src_name(img_text) + '.img')
+
+    @classmethod
+    def src_std(cls, img_text):
+        return str('image/' + cls.src_name(img_text) +
+                   '/' + cls.src_name(img_text) + '.img')
 
     @classmethod
     def unzip(cls, input, output):
-        with ZipFile(input, 'r') as zip_ref:
-            zip_ref.extractall(output)
+        if input.split('.')[-1] == 'zip':
+            with ZipFile(input, 'r') as zip_ref:
+                zip_ref.extractall(output)
+            sleep(.1)  #
+        elif input.split('.')[-1] == '7z':
+            if not QSetup.is_installed(cmd='p7zip'):
+                print('installing p7zip to extract this image...')
+                QSetup.dep_install(dep='p7zip')
+                QSetup.dep_install(dep='p7zip-full')
+                sleep(.1)
+            print('attempting to extract image from 7z...')
+            cmd = str('7z e ' + input + ' -o' + output + '  -aoa')
+            subprocess.Popen(cmd, shell=True).wait()
+            sleep(.1)
 
     @classmethod
     def restart(cls):
@@ -106,6 +129,7 @@ class Utilities(object):
         subprocess.Popen('sudo cp -rf ' + os.path.relpath('sources.py') +
                          ' ~/.clipi/sources.py', shell=True).wait()
 
+        # this is very unlikely to still be needed-
         subprocess.Popen('sudo chmod 775 ~/.clipi/clipi.py', shell=True).wait()
 
 
@@ -124,13 +148,33 @@ class ddWriter(object):
         return response['target']
 
     @classmethod
+    def dd_output_convert(cls, qcow):
+        image_dir = os.path.join('image/', do.src_name(qcow))
+        image_img = os.path.join(image_dir, do.src_img(qcow))
+        checked = {
+            'type': 'list',
+            'name': 'checked',
+            'message': 'found a qcow version! would you like to burn from this .qcow2 disk image? \n ',
+            'choices': ['No',
+                        'Yes'],
+        }
+        checked = prompt(checked)
+        if checked == 'Yes':
+            print('converting qcow disk image to burnable raw....')
+            cmd = str("qemu-img convert " + qcow + " -O raw " + do.src_output(qcow))
+            subprocess.Popen(cmd, shell=True).wait()
+            return do.src_output(qcow)
+        else:
+            return do.src_std(image_img)
+
+    @classmethod
     def dd_write(cls, sd_disk, image):
         print('preparing to write out image, unmount target....')
         umount_cmd = str('umount /dev/' + sd_disk + ' 2>/dev/null || true')
         subprocess.Popen(umount_cmd, shell=True).wait()
-        sleep(.1)
-        print('writing to target....')
-        sleep(.1)
+        for x in range(3):
+            print('writing ' + image + ' to target....')
+            sleep(.1)
         dd_cmd = str('sudo dd if=' + image + ' of=/dev/' + sd_disk + ' bs=1048576')
         print('writing to target....')
         subprocess.Popen(dd_cmd, shell=True).wait()
@@ -211,6 +255,8 @@ class QSetup(object):
             cls.dep_install(dep='dd')
         if not cls.is_installed(cmd='nmap'):
             cls.dep_install(dep='nmap')
+        if not cls.is_installed(cmd='p7zip'):
+            cls.dep_install(dep='p7zip')
 
 
 class launcher(object):
@@ -240,6 +286,7 @@ class launcher(object):
 
     @classmethod
     def ensure_img(cls, image):
+
         image_dir = os.path.join('image/', do.src_name(image))
         image_zip = os.path.join(image_dir, do.src_zip(image))
         image_img = os.path.join(image_dir, do.src_img(image))
@@ -343,7 +390,8 @@ def menu():  # this is the main, initial menu
         launcher.ensure_img(response_image)
         image_dir = os.path.join('image/', do.src_name(response_image))
         result = os.path.join(image_dir, do.src_img(response_image))
-        ddWriter.dd_write(sd_disk=target_disk, image=result)
+        to_write = ddWriter.dd_output_convert(qcow=result)
+        ddWriter.dd_write(sd_disk=target_disk, image=to_write)
         do.restart()
 
     if op1 == 'Find Pi devices on this network':
@@ -397,4 +445,7 @@ if __name__ == '__main__':
         menu()
     except KeyboardInterrupt:
         print('keyboard interrupt, exiting...')
+        sys.exit(1)
+    except:
+        print('....exiting....')
         sys.exit(1)
