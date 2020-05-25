@@ -3,7 +3,7 @@
 
 ***An efficient CLI for Pi devices***
 
-*Emulate, organize, write & manage a variety of common ARM Raspbian distributions.*
+*Emulate, organize, burn, manage a variety of distributions for Raspberry Pi.*
 
 
 `clipi` is an interactive command line application designed to streamline the deployment of Raspberry Pi devices.  `clipi` is written in Python for Debian-based operating systems, with experimental support for Mac OS via [brew](https://brew.sh/).
