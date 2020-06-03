@@ -19,5 +19,5 @@ source = {
     'motioneye_os': 'https://github.com/ccrisan/motioneyeos/releases/download/20190911/motioneyeos-raspberrypi'
                    '-20190911.img.xz',
     'dietpi': 'https://dietpi.com/downloads/images/DietPi_RPi-ARMv6-Buster.7z',
-    #  'octoprint': 'https://octopi.octoprint.org/latest'
+    'octoprint': 'https://octopi.octoprint.org/latest',
 }
