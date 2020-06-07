@@ -16,6 +16,8 @@ from time import sleep
 from sys import platform
 from zipfile import ZipFile
 from sources import source
+import toml
+from alias import *
 
 
 def is_installed(cmd):
@@ -65,8 +67,8 @@ def dep_install(dep):
 
 
 def ensure_dir(dirname='image'):
-        if not os.path.isdir(dirname):
-            os.mkdir(dirname)
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
 
 
 def ensure_bins():
@@ -120,6 +122,41 @@ def restart():
     os.execl(sys.executable, clipi_path, *sys.argv)
 
 
+def opt_kwargs(**kwargs):
+    return kwargs
+
+
+def has_toml():
+    try:
+        if '.toml' in sys.argv[1]:
+            return True
+    except:
+        return False
+
+
+def all_args():
+    if has_toml():
+        etc_args = toml.load(sys.argv[1])
+        return etc_args
+    if os.path.isfile('etc/defaults.toml'):
+        etc_args = toml.load('etc/defaults.toml')
+        return etc_args
+    if os.path.isfile('defaults.toml'):
+        etc_args = toml.load('defaults.toml')
+        return etc_args
+    else:
+        etc_args = opt_kwargs(
+            qcow_size="+8G",
+            mem_vers="256",
+            mem_64="2048",
+            aarch32="32",
+            cpu32="arm1176",
+            aarch64="64",
+            cpu64="cortex-a53"
+        )
+        return etc_args
+
+
 class names(object):
 
     @classmethod
@@ -144,7 +181,7 @@ class names(object):
 
     @classmethod
     def src_qcow(cls, img_text):
-        return str(names.src_dir(img_text) + '/' + names.src_name(img_text).split('.')[0] + '.qcow')
+        return str(names.src_dir(img_text) + '/' + names.src_name(img_text).split('.')[0] + '.qcow2')
 
     @classmethod
     def src_local(cls, img_text):
@@ -154,4 +191,3 @@ class names(object):
     def src_output(cls, img_text):
         return str(cls.src_dir(img_text) +
                    '/output_' + names.src_dir(img_text) + '.img')
-

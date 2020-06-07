@@ -19,18 +19,28 @@ class qemu(object):
 
     @classmethod
     def construct_arm1176_execute(cls,
-                               bin='bin/kernel-qemu-4.14.79-stretch',
-                               qcow=''):
-        cmd = str("qemu-system-aarch64 -kernel " + bin +
-                  " -cpu arm1176 -m 256 -M versatilepb -dtb bin/versatile-pb.dtb -no-reboot -serial stdio -append " +
+                                  qcow=''):
+        xargs = all_args()
+        cmd = str("qemu-system-aarch64 -kernel " +
+                  xargs['bin'] +
+                  " -cpu " +
+                  xargs['cpu32'] +
+                  " -m " +
+                  xargs['mem_vers'] +
+                  " -M versatilepb -dtb bin/versatile-pb.dtb -no-reboot -serial stdio -append " +
                   '"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
                   qcow)
         return cmd
 
     @classmethod
-    def construct_arm64_execute(cls, qcow=''):
-        cmd = str("qemu-system-aarch64 -M virt -m 2048 -cpu cortex-a53 " + \
-                  "-kernel bin/installer-linux -initrd bin/installer-initrd.gz " +
+    def construct_arm64_execute(cls,
+                                xargs=all_args(),
+                                qcow=''):
+        cmd = str("qemu-system-aarch64 -M virt -m " +
+                  xargs['mem_64'] +
+                  " -cpu " +
+                  xargs['cpu64'] +
+                  " -kernel bin/installer-linux -initrd bin/installer-initrd.gz " +
                   "-no-reboot -serial stdio -append " +
                   '"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
                   qcow)
@@ -43,8 +53,10 @@ class qemu(object):
         return cmd
 
     @classmethod
-    def do_qemu_expand(cls, qcow):
-        cmd = str("qemu-img resize " + qcow + " +8G")
+    def do_qemu_expand(cls,
+                       qcow=''):
+        xargs = all_args()
+        cmd = str("qemu-img resize " + qcow + " " + xargs['qcow_size'])
         subprocess.Popen(cmd, shell=True).wait()
         sleep(.1)
         return 0
@@ -85,10 +97,21 @@ class qemu(object):
         return names.src_qcow(image)
 
     @classmethod
-    def launch(cls, image):
+    def launch(cls, image, xargs=all_args()):
         main_install()
+        ensure_dir()
         ensure_bins()
+        # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
+        # this way we can call to launch an image that we don't actually have yet,
+        # letting qemu.ensure_img() go fetch & prepare a fresh one
         launch_qcow = cls.ensure_img(image)
-        subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
-                         shell=True).wait()
+        print(launch_qcow)
+
+        if xargs['use64']:
+            subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
+                                 shell=True).wait()
+        else:
+            subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
+                             shell=True).wait()
+
 

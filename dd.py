@@ -8,6 +8,7 @@ Written by Jess Sullivan
 """
 
 from common import *
+from qemu import qemu
 
 """
 dd.py:
@@ -18,8 +19,7 @@ control dd utility to write raw out to disk / sd card.
 class dd(object):
 
     @classmethod
-    def what_disk(cls, toml=False):
-        if not toml:
+    def what_disk(cls):
             # prompt following image selection for target disk
             target = {
                 'type': 'input',
@@ -29,32 +29,20 @@ class dd(object):
             }
             response = prompt(target)
             return response['target']
-        else:
-            return toml
 
     @classmethod
-    def dd_output_convert(cls, qcow, toml=False):
-        if not toml:
-            checked = {
-                'type': 'list',
-                'name': 'checked',
-                'message': 'found a qcow version! would you like to burn from this .qcow2 disk image? \n ',
-                'choices': ['No',
-                            'Yes'],
-            }
-            checked = prompt(checked)
-            if checked == 'Yes':
-                print('converting qcow disk image to burnable raw....')
-                cmd = str("qemu-img convert " + qcow + " -O raw " + names.src_output(qcow))
-                subprocess.Popen(cmd, shell=True).wait()
-                return names.src_output(qcow)
-            else:
-                return names.src_img(qcow)
-        else:
-            return toml
+    def dd_output_convert(cls, qcow):
+        print('converting qcow disk image to burnable raw....')
+        cmd = str("qemu-img convert " + qcow + " -O raw " + names.src_output(qcow))
+        subprocess.Popen(cmd, shell=True).wait()
+        return names.src_output(qcow)
+
 
     @classmethod
     def dd_write(cls, sd_disk, image):
+        main_install()
+        ensure_dir()
+        qemu.ensure_img(image=image)
         print('preparing to write out image, unmount target....')
         umount_cmd = str('umount /dev/' + sd_disk + ' 2>/dev/null || true')
         subprocess.Popen(umount_cmd, shell=True).wait()

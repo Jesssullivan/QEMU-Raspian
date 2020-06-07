@@ -1,13 +1,13 @@
 # clipi:
 
 
-***An efficient CLI for Pi devices***
+***An efficient toolset for Pi devices***
 
 *Emulate, organize, burn, manage a variety of distributions for Raspberry Pi.*
 
 
-`clipi` is an interactive command line application designed to streamline the deployment of Raspberry Pi devices.  `clipi` is written in Python for Debian-based operating systems, with experimental support for Mac OS via [brew](https://brew.sh/).
-
+`clipi` offers an interactive command line application designed to streamline the deployment of Raspberry Pi devices.  `clipi` is written in Python for Debian-based operating systems, with experimental support for Mac OS via [brew](https://brew.sh/).
+<br>        
 - - -
 
 ### Choose your own adventure....
@@ -25,9 +25,16 @@
 
 - *Need pre-enabled ssh? copy [/ssh](https://github.com/Jesssullivan/clipi/blob/master/ssh) to `/boot` too.*
 
-
 ***Manage:***   
 `clipi` can find the addresses of all the  Raspberry Pi devices on your local network.   Need to do this a lot?  `clipi` can install itself as a Bash alias, fire it up whenever you want xD
+    
+***Shortcuts:***
+
+Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https://github.com/toml-lang/toml) file.              
+- Supply a shortcut file like so:          
+```python3 clipi.py etc/qemustretchlite.toml```         
+- Check out some other examples in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc).
+
 
 - - -
 

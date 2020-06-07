@@ -1,0 +1,19 @@
+# clipi:
+# Emulate, organize, burn, manage a variety of sbc distributions for Raspberry Pi
+# Written by Jess Sullivan
+# @ https://github.com/Jesssullivan/clipi
+# @ https://transscendsurvival.org/
+
+###############################################################################################
+# defaults
+###############################################################################################
+
+# qemu:
+bin = "bin/kernel-qemu-4.14.79-stretch"
+qcow_size = "+8G"
+mem_vers = "256"  # versatilepb doesn"t support over 256
+mem_64 = "2048"
+aarch32 = "aarch32"
+cpu32 = "arm1176"
+aarch64 = "aarch64"
+cpu64 = "cortex-a53"

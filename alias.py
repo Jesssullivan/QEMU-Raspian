@@ -6,7 +6,7 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
-
+from sys import platform
 from common import *
 
 """
