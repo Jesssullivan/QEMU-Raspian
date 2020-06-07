@@ -31,7 +31,7 @@
 ***Shortcuts:***             
 Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https://github.com/toml-lang/toml) file.              
 - Supply a shortcut file like so:          
-```python3 clipi.py etc/qemustretchlite.toml```         
+```python3 clipi.py etc/qemu_stretchlite.toml```         
 - Check out some other examples in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc).
 
 
