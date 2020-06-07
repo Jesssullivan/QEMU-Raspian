@@ -28,8 +28,7 @@
 ***Manage:***   
 `clipi` can find the addresses of all the  Raspberry Pi devices on your local network.   Need to do this a lot?  `clipi` can install itself as a Bash alias, fire it up whenever you want xD
     
-***Shortcuts:***
-
+***Shortcuts:***             
 Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https://github.com/toml-lang/toml) file.              
 - Supply a shortcut file like so:          
 ```python3 clipi.py etc/qemustretchlite.toml```         
