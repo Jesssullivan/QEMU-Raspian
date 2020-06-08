@@ -122,6 +122,14 @@ def restart():
     os.execl(sys.executable, clipi_path, *sys.argv)
 
 
+def arg_true(dic, arg):
+    try:
+        if dic[arg]:
+            return True
+    except KeyError:
+        pass
+
+
 def opt_kwargs(**kwargs):
     return kwargs
 

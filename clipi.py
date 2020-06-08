@@ -12,7 +12,7 @@ from qemu import *
 from nmap import *
 from common import *
 from menus import *
-
+import alias
 
 def main():
     try:
@@ -55,7 +55,7 @@ def main():
             cleanup()
 
         if arg_true('Install clipi as alias'):
-            do_alias()
+            alias.do_alias()
 
         if arg_true('Check / install dependencies'):
             print(str('checking all clipi.py depends for your ' +
@@ -92,7 +92,7 @@ def main():
                 cleanup()
 
             if response == 'Install clipi as alias':
-                do_alias()
+                alias.do_alias()
 
             if response == 'Check / install dependencies':
                 print(str('checking all clipi.py depends for your ' +

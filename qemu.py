@@ -107,7 +107,7 @@ class qemu(object):
         launch_qcow = cls.ensure_img(image)
         print(launch_qcow)
 
-        if xargs['use64']:
+        if arg_true(dic=xargs, arg='use64'):
             subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
                                  shell=True).wait()
         else:

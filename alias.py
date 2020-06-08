@@ -6,8 +6,10 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
+import subprocess
 from sys import platform
 from common import *
+import os
 
 """
 alias.py:
@@ -40,19 +42,28 @@ def add_to_bash():
 
 def bash_alias_update():
     # adds .directory for bash version, separate from git:
-    if not os.path.exists('~/.clipi'):
-        subprocess.Popen("mkdir ~/.clipi", shell=True).wait()
+    try:
+        subprocess.Popen("sudo rm -rf ~/.clipi", shell=True).wait()
+    except:
+        pass
+    try:
+        subprocess.Popen("sudo mkdir  ~/.clipi", shell=True).wait()
+    except:
+        pass
+    try:
+        subprocess.Popen("sudo cp -rf  ../clipi/* ~/.clipi/", shell=True).wait()
+    except:
+        pass
+    try:
+        subprocess.Popen("rm -rf ~/.clipi/.git", shell=True).wait()
+    except:
+        pass
+    try:
+        subprocess.Popen("sudo chmod 775 ~/.clipi/*", shell=True).wait()
+    except:
+        pass
 
-    if not os.path.exists('~/.clipi/bin/'):
-        subprocess.Popen("mkdir ~/.clipi/bin/", shell=True).wait()
 
-    print('copying *.py to ~/.clipi/*....')
-    subprocess.Popen('sudo cp -rf ' + os.path.relpath('*.py') +
-                     ' ~/.clipi/*', shell=True).wait()
-
-    print('copying bin to ~/.clipi/bin/....')
-    subprocess.Popen('sudo cp -rf ' + os.path.relpath('bin') +
-                     ' ~/.clipi/bin/', shell=True).wait()
-
-    # this is very unlikely to still be needed-
-    subprocess.Popen('sudo chmod 775 ~/.clipi/clipi.py', shell=True).wait()
+def do_alias():
+    add_to_bash()
+    bash_alias_update()
