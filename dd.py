@@ -8,11 +8,10 @@ Written by Jess Sullivan
 """
 
 from common import *
-from qemu import qemu
 
 """
 dd.py:
-control dd utility to write raw out to disk / sd card.  
+control dd utility to write raw out to disk / sd card.
 """
 
 
@@ -20,15 +19,15 @@ class dd(object):
 
     @classmethod
     def what_disk(cls):
-            # prompt following image selection for target disk
-            target = {
-                'type': 'input',
-                'name': 'target',
-                'message': "please type the target disk's system name, such as `sdb` or sdc`",
-                'default': "sdc"
-            }
-            response = prompt(target)
-            return response['target']
+        # prompt following image selection for target disk
+        target = {
+            'type': 'input',
+            'name': 'target',
+            'message': "please type the target disk's system name, such as `sdb` or sdc`",
+            'default': "sdc"
+        }
+        response = prompt(target)
+        return response['target']
 
     @classmethod
     def dd_output_convert(cls, qcow):
@@ -37,11 +36,10 @@ class dd(object):
         subprocess.Popen(cmd, shell=True).wait()
         return names.src_output(qcow)
 
-
     @classmethod
     def dd_write(cls, sd_disk, image):
-        main_install()
-        ensure_dir()
+        common.main_install()
+        common.ensure_dir()
         qemu.ensure_img(image=image)
         print('preparing to write out image, unmount target....')
         umount_cmd = str('umount /dev/' + sd_disk + ' 2>/dev/null || true')
@@ -58,4 +56,3 @@ class dd(object):
         print('finished xD \n ' +
               'to pre-enable wifi and ssh, reinsert sd_disk, then ' +
               'copy file `ssh` and a configured `wpa_supplicant.conf` to /boot :)')
-
