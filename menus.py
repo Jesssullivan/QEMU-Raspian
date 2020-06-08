@@ -8,7 +8,8 @@ Written by Jess Sullivan
 """
 
 from common import *
-from common import common as com
+from alias import alias
+from sources import sources
 
 """
 menus.py:
