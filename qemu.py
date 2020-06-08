@@ -7,8 +7,9 @@ Written by Jess Sullivan
 @ https://transscendsurvival.org/
 """
 
+
 from common import *
-from common import common as com
+from names import names
 
 """
 qemu.py:
@@ -20,7 +21,7 @@ class qemu(object):
 
     @classmethod
     def construct_arm1176_execute(cls, qcow=''):
-        xargs = com.all_args()
+        xargs = common.all_args()
         cmd = str("qemu-system-aarch64 -kernel " +
                   xargs['bin'] +
                   " -cpu " +
@@ -34,7 +35,7 @@ class qemu(object):
 
     @classmethod
     def construct_arm64_execute(cls, qcow=''):
-        xargs = com.all_args()
+        xargs = common.all_args()
         cmd = str("qemu-system-aarch64 -M virt -m " +
                   xargs['mem_64'] +
                   " -cpu " +
@@ -56,7 +57,7 @@ class qemu(object):
 
     @classmethod
     def do_qemu_expand(cls, qcow=''):
-        xargs = com.all_args()
+        xargs = common.all_args()
         cmd = str("qemu-img resize " + qcow + " " + xargs['qcow_size'])
         subprocess.Popen(cmd, shell=True).wait()
         sleep(.1)
@@ -89,27 +90,27 @@ class qemu(object):
                 cls.do_qemu_expand(names.src_qcow(image))
 
             if os.path.isfile(names.src_zip(image)):
-                com.unzip(names.src_zip(image), names.src_dir(image))
+                common.unzip(names.src_zip(image), names.src_dir(image))
 
             if os.path.isfile(names.src_7z(image)):
                 print('unzipping')
-                com.unzip(names.src_7z(image), names.src_dir(image))
+                common.unzip(names.src_7z(image), names.src_dir(image))
 
         return names.src_qcow(image)
 
     @classmethod
     def launch(cls, image):
-        xargs = com.all_args()
-        com.main_install()
-        com.ensure_dir()
-        com.ensure_bins()
+        xargs = common.all_args()
+        common.main_install()
+        common.ensure_dir()
+        common.ensure_bins()
         # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
         # this way we can call to launch an image that we don't actually have yet,
         # letting qemu.ensure_img() go fetch & prepare a fresh one
         launch_qcow = cls.ensure_img(image)
         print(launch_qcow)
 
-        if com.arg_true(dic=xargs, arg='use64'):
+        if common.arg_true(dic=xargs, arg='use64'):
             subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
                                  shell=True).wait()
         else:
