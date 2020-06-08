@@ -7,16 +7,21 @@ Written by Jess Sullivan
 @ https://transscendsurvival.org/
 """
 
-from dd import *
-from qemu import *
-from nmap import *
+# local modules:
 from common import *
-from menus import *
-import alias
+from common import common
+from sources import sources
+from dd import dd
+from menus import menus
+from names import names
+from nmap import nmap
+from qemu import qemu
+from alias import alias
+
 
 def main():
     try:
-        if has_toml():
+        if common.has_toml():
             config = toml.load(sys.argv[1])
             conf = True
         else:
@@ -36,7 +41,7 @@ def main():
     if conf:
 
         if arg_true('Launch a Pi emulation'):
-            image = source[config['image']]
+            image = sources.get_source()[config['image']]
             qemu.launch(image)
 
         if arg_true('Burn a bootable disk image'):
@@ -49,10 +54,10 @@ def main():
             dd.dd_write(sd_disk=target_disk, image=to_write)
 
         if arg_true('Find Pi devices on this network'):
-            nmap_search()
+            nmap.nmap_search()
 
         if arg_true('Cleanup...'):
-            cleanup()
+            common.cleanup()
 
         if arg_true('Install clipi as alias'):
             alias.do_alias()
@@ -60,19 +65,19 @@ def main():
         if arg_true('Check / install dependencies'):
             print(str('checking all clipi.py depends for your ' +
                       platform + ' - based machine....'))
-            main_install()
+            common.main_install()
 
     else:
 
-        op1 = main_menu()
+        op1 = menus.main_menu()
 
         if op1 == 'Launch a Pi emulation':
-            image = launch_img()
+            image = menus.launch_img()
             qemu.launch(image)
 
         if op1 == 'Burn a bootable disk image':
             print('Follow the prompts: select and image')
-            response_image = launch_img()
+            response_image = menus.launch_img()
             target_disk = dd.what_disk()
             result = os.path.join(names.src_dir(response_image),
                                   names.src_img(response_image))
@@ -81,15 +86,15 @@ def main():
             dd.dd_write(sd_disk=target_disk, image=to_write)
 
         if op1 == 'Find Pi devices on this network':
-            nmap_search()
+            nmap.nmap_search()
 
         if op1 == 'Utilities...':
             print('Additional settings:')
-            response = utils_menu()  # shows utils_menu() menu
+            response = menus.utils_menu()  # shows utils_menu() menu
 
             if response == 'Cleanup...':
                 # double checks w/ a confirm:
-                cleanup()
+                common.cleanup()
 
             if response == 'Install clipi as alias':
                 alias.do_alias()
@@ -97,7 +102,7 @@ def main():
             if response == 'Check / install dependencies':
                 print(str('checking all clipi.py depends for your ' +
                           platform + ' - based machine....'))
-                main_install()
+                common.main_install()
 
 
 if __name__ == '__main__':
