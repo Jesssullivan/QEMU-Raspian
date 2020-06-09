@@ -32,7 +32,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
     
 - take a look in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc) for some shortcut examples, here are some of mine:
    - ***write_octoprint.toml:***            
-     fetches the latest octoprint image and burns it into a sd card inserted at `sdc` 
+     fetches the latest octoprint image and burns it to a sd card inserted at `sdc` 
    - ***find_pi.toml:***            
      finds, prints all Raspberry Pi IPs on the local network.       
    - ***cleanup.toml:***            
