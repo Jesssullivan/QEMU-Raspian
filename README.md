@@ -43,7 +43,9 @@ git clone https://github.com/Jesssullivan/clipi
 cd clipi
 
 # preheat:
-pip install -r requirements.txt
+pip3 install -r requirements.txt
+# (or pip install -r requirements.txt)
+
 
 # begin cooking some Pi:
 python3 clipi.py
