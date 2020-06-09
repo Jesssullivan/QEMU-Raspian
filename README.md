@@ -64,7 +64,6 @@ cd clipi
 pip3 install -r requirements.txt
 # (or pip install -r requirements.txt)
 
-
 # begin cooking some Pi:
 python3 clipi.py
 ```
