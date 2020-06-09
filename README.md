@@ -41,9 +41,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
      fetches and starts a buster dietpi (ARM v6) emulation.         
    - ***qemu_stretchlite.toml:***            
      fetches and starts a run-of-the-mill Raspbian stretch emulation without a desktop environment.         
-   - ***qemu_stretch.toml:***                            
-     fetches and starts a run-of-the-mill Raspbian stretch emulation with the standard raspbian a desktop environment.  
-   - ***qemu_stretch.toml:***                            
+   - ***qemu_stretchdesk.toml:***                            
      fetches and starts a run-of-the-mill Raspbian stretch emulation with the standard raspbian a desktop environment.  
    - ***qemu_buster64.toml:***                            
      fetches and starts a 64 bit Raspbian Buster emulation with the standard raspbian a desktop environment (2g + Cortex a53)
