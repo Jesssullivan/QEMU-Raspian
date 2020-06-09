@@ -85,7 +85,8 @@ class common(object):
         if input.split('.')[-1] == 'zip':
             with ZipFile(input, 'r') as zip_ref:
                 zip_ref.extractall(output)
-            sleep(.1)  #
+            sleep(.1)
+            return 0
         elif input.split('.')[-1] == '7z':
             if not cls.is_installed(cmd='p7zip'):
                 print('installing p7zip to extract this image...')
@@ -96,6 +97,13 @@ class common(object):
             cmd = str('7z e ' + input + ' -o' + output + '  -aoa')
             subprocess.Popen(cmd, shell=True).wait()
             sleep(.1)
+            return 0
+        elif input.split('img')[-1] == '.gz':
+            print('attempting to extract image from .gz...')
+            cmd = str('gunzip ' + input)
+            subprocess.Popen(cmd, shell=True).wait()
+            sleep(.1)
+            return 0
 
     @classmethod
     def restart(cls):

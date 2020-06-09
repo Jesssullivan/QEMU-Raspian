@@ -8,7 +8,6 @@ Written by Jess Sullivan
 """
 
 from common import *
-from common import common as com
 
 """
 names.py:
@@ -37,6 +36,10 @@ class names(object):
     @classmethod
     def src_7z(cls, img_text):
         return str(names.src_dir(img_text) + '/' + names.src_name(img_text).split('.')[0] + '.7z')
+
+    @classmethod
+    def src_gz(cls, img_text):
+        return str(names.src_dir(img_text) + '/' + names.src_name(img_text).split('.')[0] + '.img.gz')
 
     @classmethod
     def src_qcow(cls, img_text):

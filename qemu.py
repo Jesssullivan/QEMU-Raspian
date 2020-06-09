@@ -7,9 +7,9 @@ Written by Jess Sullivan
 @ https://transscendsurvival.org/
 """
 
-
 from common import *
 from names import names
+
 # import threading
 
 """
@@ -78,7 +78,6 @@ class qemu(object):
             print('exited dhclient thread.')
             sleep(.1)
 
-
     @classmethod
     def construct_qemu_convert(cls, img, qcow):
         cmd = str("qemu-img convert -f raw -O qcow2 " + img +
@@ -96,6 +95,9 @@ class qemu(object):
     @classmethod
     def ensure_img(cls, image):
 
+        got = False  # once we've fetched an image, got=true:
+        # don't go get it again while exhausting other options
+
         for x in range(10):
 
             if os.path.isfile(names.src_qcow(image)):
@@ -104,13 +106,17 @@ class qemu(object):
             if not os.path.exists(names.src_dir(image)):
                 os.mkdir(names.src_dir(image))
 
-            if not os.path.exists(names.src_dir(image)):
-                os.mkdir(names.src_dir(image))
+            if os.path.isfile(names.src_zip(image)):
+                print('unzipping')
+                common.unzip(names.src_zip(image), names.src_dir(image))
 
-            if not os.path.isfile(image):
-                subprocess.Popen(str('wget -O ' + names.src_local(image) + ' ' + image),
-                                 shell=True).wait()
-                sleep(.25)
+            if os.path.isfile(names.src_7z(image)):
+                print('unzipping')
+                common.unzip(names.src_7z(image), names.src_dir(image))
+
+            if os.path.isfile(names.src_gz(image)):
+                print('unzipping')
+                common.unzip(names.src_gz(image), names.src_dir(image))
 
             if os.path.isfile(names.src_img(image)):
                 subprocess.Popen(cls.construct_qemu_convert(img=names.src_img(image),
@@ -119,12 +125,21 @@ class qemu(object):
                 sleep(.25)
                 cls.do_qemu_expand(names.src_qcow(image))
 
-            if os.path.isfile(names.src_zip(image)):
-                common.unzip(names.src_zip(image), names.src_dir(image))
+            if not got:
 
-            if os.path.isfile(names.src_7z(image)):
-                print('unzipping')
-                common.unzip(names.src_7z(image), names.src_dir(image))
+                if '.zip' in image:
+                    got = True
+                    subprocess.Popen(str('wget -O ' + names.src_zip(image) + ' ' + image),
+                                     shell=True).wait()
+                if '.7z' in image:
+                    got = True
+                    subprocess.Popen(str('wget -O ' + names.src_7z(image) + ' ' + image),
+                                     shell=True).wait()
+                if '.gz' in image:
+                    got = True
+                    subprocess.Popen(str('wget -O ' + names.src_gz(image) + ' ' + image),
+                                     shell=True).wait()
+                sleep(.25)
 
         return names.src_qcow(image)
 
@@ -137,12 +152,12 @@ class qemu(object):
         # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
         # this way we can call to launch an image that we don't actually have yet,
         # letting qemu.ensure_img() go fetch & prepare a fresh one
-        launch_qcow = cls.ensure_img(image)
+        launch_qcow = qemu.ensure_img(image)
         print(launch_qcow)
 
         if common.arg_true(dic=xargs, arg='use64'):
             subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
-                                 shell=True).wait()
+                             shell=True).wait()
         else:
             subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
                              shell=True).wait()

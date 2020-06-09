@@ -1,0 +1,20 @@
+###############################################################################################
+# clipi shortcut toml #
+###############################################################################################
+
+# run:
+
+'Launch a Pi emulation' = true
+'image' = 'retropie'
+'use64' = true  # optional 'true' uses aarch64 w/ cortex-a53- bootstrap install, needs extra attention during setup
+
+# set up guest with:
+#$ sudo chmod u+x RetroPie-Setup/retropie_setup.sh
+#$ sudo __platform=rpi3 ./RetroPie-Setup/retropie_setup.sh
+
+###############################################################################################
+# defaults #
+###############################################################################################
+
+# qemu:
+qcow_size = "+10G"

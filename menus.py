@@ -61,6 +61,7 @@ class menus(object):
         }
         answers = prompt(launches)
         source = sources.get_source()
+        print('IMAGE = ' + source[answers['launches']])
         return source[answers['launches']]
 
     @classmethod
