@@ -12,6 +12,7 @@ from PyInquirer import prompt
 from common import *
 from names import names
 from qemu import qemu
+from sources import sources
 
 """
 dd.py:
@@ -39,7 +40,8 @@ class dd(object):
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
-        qemu.ensure_img(image)
+        img = sources.get_source()[image]
+        qemu.ensure_img(img)
         print('preparing to write out image, unmount target....')
         umount_cmd = str('umount /dev/' + sd_disk + ' 2>/dev/null || true')
         subprocess.Popen(umount_cmd, shell=True).wait()

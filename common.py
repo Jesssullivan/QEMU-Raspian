@@ -14,9 +14,14 @@ import sys
 from sys import platform
 from time import sleep
 from zipfile import ZipFile
+import requests
+import xml.etree.ElementTree as ET
+import xmltodict
 
 # pip install:
 import toml
+
+bin_url = "http://clipi-bins.s3.amazonaws.com/"
 
 
 class common(object):
@@ -58,8 +63,29 @@ class common(object):
     @classmethod
     def ensure_bins(cls):
         if not os.path.isdir('bin'):
+            print('adding /bin....')
             os.mkdir('bin')
-            print('TODO: go fetch binaries from github plz')
+            sleep(.2)
+
+            print('fetching binary list from S3....')
+            index = requests.get(bin_url).content
+            with open('bin/index.xml', 'wb') as f:
+                f.write(index)
+            sleep(.2)
+
+            print('parsing response....')
+            with open('bin/index.xml') as fd:
+                doc = xmltodict.parse(fd.read())
+            sleep(.2)
+
+            print('downloading....')
+            Keys = doc['ListBucketResult']['Contents']
+            for f in Keys:
+                item = f['Key']
+                cmd = str("wget -O bin/" + item + " " + bin_url + item)
+                subprocess.Popen(cmd, shell=True).wait()
+            sleep(.2)
+            print('done.')
 
     @classmethod
     def main_install(cls):

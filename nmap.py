@@ -6,9 +6,9 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
-
-from common import *
-from common import common as com
+import subprocess
+import socket
+from common import common
 
 """
 nmap.py:
@@ -23,7 +23,7 @@ class nmap(object):
     def nmap_search(cls):
         print('Uses nmap to find local Pi devices by MAC address....')
         # just to make sure nmap is available
-        com.main_install()
+        common.main_install()
 
         # find the first two ip quadrants from which to increment:
         get_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

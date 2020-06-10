@@ -10,6 +10,7 @@ Written by Jess Sullivan
 from common import *
 from alias import alias
 from sources import sources
+from PyInquirer import prompt
 
 """
 menus.py:

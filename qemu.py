@@ -43,7 +43,9 @@ class qemu(object):
                   xargs['cpu64'] +
                   " -kernel bin/installer-linux -initrd bin/installer-initrd.gz " +
                   " -no-reboot -serial stdio -append " +
-                  ' "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
+                  ' "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" ' +
+                  " -k en-us " +
+                  '-hda ' +
                   qcow)
         return cmd
 
@@ -96,67 +98,64 @@ class qemu(object):
         got = False  # once we've fetched an image, got=true:
         # don't go get it again while exhausting other options
 
-        for x in range(10):
-            try:
-                if not os.path.exists(names.src_dir(image)):
-                    os.mkdir(names.src_dir(image))
+        for x in range(12):
+            if not os.path.exists(names.src_dir(image)):
+                os.mkdir(names.src_dir(image))
 
-                if not names.any_qcow(image) is None:
-                    return names.any_qcow(image)
+            if names.any_qcow(image) is not None:
+                return names.any_qcow(image)
 
-                if not unzip:
+            if not unzip:
 
-                    if not names.any_zip(image) is None:
-                        print('checking .zip....')
-                        common.unzip(names.any_zip(image), names.src_dir(image))
-                        unzip = True
+                if not names.any_zip(image) is None:
+                    print('checking .zip....')
+                    common.unzip(names.any_zip(image), names.src_dir(image))
+                    unzip = True
 
-                    if not names.any_7z(image) is None:
-                        print('checking .7z....')
-                        common.unzip(names.any_7z(image), names.src_dir(image))
-                        unzip = True
+                if not names.any_7z(image) is None:
+                    print('checking .7z....')
+                    common.unzip(names.any_7z(image), names.src_dir(image))
+                    unzip = True
 
-                    if not names.any_gz(image) is None:
-                        print('checking .gz....')
-                        common.unzip(names.any_gz(image), names.src_dir(image))
-                        unzip = True
+                if not names.any_gz(image) is None:
+                    print('checking .gz....')
+                    common.unzip(names.any_gz(image), names.src_dir(image))
+                    unzip = True
 
-                    if not names.any_xz(image) is None:
-                        print('checking .xz....')
-                        common.unzip(names.any_xz(image), names.src_dir(image))
-                        unzip = True
+                if not names.any_xz(image) is None:
+                    print('checking .xz....')
+                    common.unzip(names.any_xz(image), names.src_dir(image))
+                    unzip = True
 
-                if not got:
-                    if '.zip' in image:
-                        subprocess.Popen(str('wget -O ' + names.src_zip(image) + ' ' + image),
-                                         shell=True).wait()
-                        got = True
-
-                    if '.7z' in image:
-                        subprocess.Popen(str('wget -O ' + names.src_7z(image) + ' ' + image),
-                                         shell=True).wait()
-                        got = True
-
-                    if '.gz' in image:
-                        subprocess.Popen(str('wget -O ' + names.src_gz(image) + ' ' + image),
-                                         shell=True).wait()
-                        got = True
-
-                    if '.xz' in image:
-                        subprocess.Popen(str('wget -O ' + names.src_xz(image) + ' ' + image),
-                                         shell=True).wait()
-                        got = True
-
-                    sleep(.25)
-
-                if os.path.isfile(names.any_img(image)):
-                    subprocess.Popen(cls.construct_qemu_convert(img=names.any_img(image),
-                                                                qcow=names.src_qcow(image)),
+            if not got:
+                if '.zip' in image:
+                    subprocess.Popen(str('wget -O ' + names.src_zip(image) + ' ' + image),
                                      shell=True).wait()
-                    sleep(.25)
-                    cls.do_qemu_expand(names.src_qcow(image))
-            except:
-                pass
+                    got = True
+
+                if '.7z' in image:
+                    subprocess.Popen(str('wget -O ' + names.src_7z(image) + ' ' + image),
+                                     shell=True).wait()
+                    got = True
+
+                if '.gz' in image:
+                    subprocess.Popen(str('wget -O ' + names.src_gz(image) + ' ' + image),
+                                     shell=True).wait()
+                    got = True
+
+                if '.xz' in image:
+                    subprocess.Popen(str('wget -O ' + names.src_xz(image) + ' ' + image),
+                                     shell=True).wait()
+                    got = True
+
+                sleep(.25)
+
+            if os.path.isfile(names.any_img(image)):
+                subprocess.Popen(cls.construct_qemu_convert(img=names.any_img(image),
+                                                            qcow=names.src_qcow(image)),
+                                 shell=True).wait()
+                sleep(.25)
+                cls.do_qemu_expand(names.src_qcow(image))
 
         return names.any_qcow(image)
 
@@ -172,7 +171,7 @@ class qemu(object):
         launch_qcow = qemu.ensure_img(image)
         print(launch_qcow)
 
-        if common.arg_true(dic=xargs, arg='use64'):
+        if xargs['use64']:
             subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
                              shell=True).wait()
         else:
