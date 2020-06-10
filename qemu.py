@@ -43,10 +43,7 @@ class qemu(object):
                   xargs['cpu64'] +
                   " -kernel bin/installer-linux -initrd bin/installer-initrd.gz " +
                   " -no-reboot -serial stdio -append " +
-                  " -k en-us " +
-                  " -name " +
-                  xargs['name'] +
-                  '"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
+                  ' "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
                   qcow)
         return cmd
 

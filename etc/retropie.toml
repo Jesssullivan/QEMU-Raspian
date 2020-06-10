@@ -18,3 +18,7 @@
 
 # qemu:
 qcow_size = "+10G"
+mem_64 = "2048"
+aarch64 = "aarch64"
+cpu64 = "cortex-a53"
+name = 'retropie'
