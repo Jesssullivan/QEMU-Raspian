@@ -40,8 +40,7 @@ class dd(object):
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
-        img = sources.get_source()[image]
-        qemu.ensure_img(img)
+        qemu.ensure_img(image)
         print('preparing to write out image, unmount target....')
         umount_cmd = str('umount /dev/' + sd_disk + ' 2>/dev/null || true')
         subprocess.Popen(umount_cmd, shell=True).wait()
