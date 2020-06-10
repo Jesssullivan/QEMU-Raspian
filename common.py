@@ -7,17 +7,15 @@ Written by Jess Sullivan
 @ https://transscendsurvival.org/
 """
 
+import os
+import subprocess
 # standard library:
 import sys
-import os
-import socket
-import subprocess
 from sys import platform
 from time import sleep
 from zipfile import ZipFile
 
 # pip install:
-from PyInquirer import prompt
 import toml
 
 
@@ -98,9 +96,15 @@ class common(object):
             subprocess.Popen(cmd, shell=True).wait()
             sleep(.1)
             return 0
-        elif input.split('img')[-1] == '.gz':
+        elif 'gz' in input:
             print('attempting to extract image from .gz...')
             cmd = str('gunzip ' + input)
+            subprocess.Popen(cmd, shell=True).wait()
+            sleep(.1)
+            return 0
+        elif 'xz' in input:
+            print('attempting to extract image from .xz...')
+            cmd = str('unxz ' + input)
             subprocess.Popen(cmd, shell=True).wait()
             sleep(.1)
             return 0

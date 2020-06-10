@@ -7,7 +7,11 @@ Written by Jess Sullivan
 @ https://transscendsurvival.org/
 """
 
+from PyInquirer import prompt
+
 from common import *
+from names import names
+from qemu import qemu
 
 """
 dd.py:
@@ -30,24 +34,18 @@ class dd(object):
         return response['target']
 
     @classmethod
-    def dd_output_convert(cls, qcow):
-        print('converting qcow disk image to burnable raw....')
-        cmd = str("qemu-img convert " + qcow + " -O raw " + names.src_output(qcow))
-        subprocess.Popen(cmd, shell=True).wait()
-        return names.src_output(qcow)
-
-    @classmethod
     def dd_write(cls, sd_disk, image):
+        xargs = common.all_args()
         common.main_install()
         common.ensure_dir()
-        qemu.ensure_img(image=image)
+        common.ensure_bins()
+        qemu.ensure_img(image)
         print('preparing to write out image, unmount target....')
         umount_cmd = str('umount /dev/' + sd_disk + ' 2>/dev/null || true')
         subprocess.Popen(umount_cmd, shell=True).wait()
-        for x in range(3):
-            print('writing ' + image + ' to target....')
-            sleep(.1)
-        dd_cmd = str('sudo dd if=' + image + ' of=/dev/' + sd_disk + ' bs=1048576')
+        sleep(.2)
+        print('writing ' + names.any_img(image) + ' to target....')
+        dd_cmd = str('sudo dd if=' + names.any_img(image) + ' of=/dev/' + sd_disk + ' bs=1048576')
         print('writing to target....')
         subprocess.Popen(dd_cmd, shell=True).wait()
         sleep(.1)

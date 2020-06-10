@@ -7,16 +7,15 @@ Written by Jess Sullivan
 @ https://transscendsurvival.org/
 """
 
+from alias import alias
 # local modules:
 from common import *
 from common import common
-from sources import sources
 from dd import dd
 from menus import menus
-from names import names
 from nmap import nmap
 from qemu import qemu
-from alias import alias
+from sources import sources
 
 
 def main():
@@ -47,11 +46,7 @@ def main():
         if arg_true('Burn a bootable disk image'):
             response_image = config['image']
             target_disk = config['target_disk']
-            result = os.path.join(names.src_dir(response_image),
-                                  names.src_img(response_image))
-            print("checking types....")
-            to_write = dd.dd_output_convert(qcow=result)
-            dd.dd_write(sd_disk=target_disk, image=to_write)
+            dd.dd_write(sd_disk=target_disk, image=response_image)
 
         if arg_true('Find Pi devices on this network'):
             nmap.nmap_search()
@@ -79,11 +74,8 @@ def main():
             print('Follow the prompts: select and image')
             response_image = menus.launch_img()
             target_disk = dd.what_disk()
-            result = os.path.join(names.src_dir(response_image),
-                                  names.src_img(response_image))
             print("checking types....")
-            to_write = dd.dd_output_convert(qcow=result)
-            dd.dd_write(sd_disk=target_disk, image=to_write)
+            dd.dd_write(sd_disk=target_disk, image=response_image)
 
         if op1 == 'Find Pi devices on this network':
             nmap.nmap_search()
