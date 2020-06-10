@@ -44,9 +44,11 @@ def main():
             qemu.launch(image)
 
         if arg_true('Burn a bootable disk image'):
-            response_image = config['image']
-            target_disk = config['target_disk']
-            dd.dd_write(sd_disk=target_disk, image=response_image)
+            image = sources.get_source()[config['image']]
+            print(sources.get_source())
+            target_disk = [config['target_disk']]
+            print("checking types....")
+            dd.dd_write(sd_disk=target_disk, image=image)
 
         if arg_true('Find Pi devices on this network'):
             nmap.nmap_search()
