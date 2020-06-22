@@ -31,7 +31,6 @@ class qemu(object):
                   # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
                   # yes generic ARM virt is better and newer....xD
                   sources.do_arg(arg='device32', default='versatilepb') +
-                  " -virtfs local,path=/etc/,mount_tag=host0,security_model=passthrough,id=host0" +
                   " -dtb bin/versatile-pb.dtb -no-reboot -serial stdio -append " +
                   '"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
                   qcow)
@@ -49,7 +48,6 @@ class qemu(object):
                   sources.do_arg(arg='bin', default='bin/installer-linux') +
                   " -initrd + " +
                   sources.do_arg(arg='initrd64', default='bin/installer-initrd.gz') +
-                  " -virtfs local,path=/etc/,mount_tag=host0,security_model=passthrough,id=host0" +
                   " -no-reboot -serial stdio -append " +
                   ' "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" ' +
                   " -k " + k,
