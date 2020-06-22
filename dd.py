@@ -8,11 +8,9 @@ Written by Jess Sullivan
 """
 
 from PyInquirer import prompt
-
 from common import *
 from names import names
 from qemu import qemu
-from sources import sources
 
 """
 dd.py:
@@ -36,22 +34,20 @@ class dd(object):
 
     @classmethod
     def dd_write(cls, sd_disk, image):
-        xargs = common.all_args()
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
         qemu.ensure_img(image)
         print('preparing to write out image, unmount target....')
-        umount_cmd = str('umount /dev/' + str(sd_disk) + ' 2>/dev/null || true')
-        subprocess.Popen(umount_cmd, shell=True).wait()
-        sleep(.2)
-        print('writing ' + names.any_img(image) + ' to target....')
-        dd_cmd = str('sudo dd if=' + names.any_img(image) + ' of=/dev/' + str(sd_disk) + ' bs=1048576')
-        print('writing to target....')
+        sleep(.1)
+        img = names.any_qcow(image)
+        print('writing ' + img + ' to target....')
+        dd_cmd = str('sudo qemu-img dd -f qcow2 -O raw bs=1M ' +
+                     ' if=' + img +
+                     ' of=/dev/' + str(sd_disk))
+        print('working....')
         subprocess.Popen(dd_cmd, shell=True).wait()
         sleep(.1)
-        print('completed write, syncing....')
-        subprocess.Popen('sync ', shell=True).wait()
         print('finished xD \n ' +
-              'to pre-enable wifi and ssh, reinsert sd_disk, then ' +
+              'to pre-enable or double check wifi and ssh, reinsert sd_disk, then ' +
               'copy file `ssh` and a configured `wpa_supplicant.conf` to /boot :)')

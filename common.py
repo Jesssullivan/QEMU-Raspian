@@ -161,42 +161,9 @@ class common(object):
         try:
             if dic[arg]:
                 return True
-        except KeyError:
+        except:
             pass
 
     @classmethod
     def opt_kwargs(cls, **kwargs):
         return kwargs
-
-    @classmethod
-    def has_toml(cls):
-        # soften argument / no argument
-        try:
-            if '.toml' in sys.argv[1]:
-                return True
-        except:
-            return False
-
-    @classmethod
-    def all_args(cls):
-        if cls.has_toml():
-            etc_args = toml.load(sys.argv[1])
-            return etc_args
-        if os.path.isfile('etc/defaults.toml'):
-            etc_args = toml.load('etc/defaults.toml')
-            return etc_args
-        if os.path.isfile('defaults.toml'):
-            etc_args = toml.load('defaults.toml')
-            return etc_args
-        else:
-            etc_args = cls.opt_kwargs(
-                # provide some catch-all arguments just in case something goes horribly wrong
-                qcow_size="+8G",
-                mem_vers="256",
-                mem_64="2048",
-                aarch32="32",
-                cpu32="arm1176",
-                aarch64="64",
-                cpu64="cortex-a53"
-            )
-            return etc_args

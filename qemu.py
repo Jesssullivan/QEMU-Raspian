@@ -9,7 +9,7 @@ Written by Jess Sullivan
 
 from common import *
 from names import names
-
+from sources import sources
 # import threading
 
 """
@@ -19,34 +19,39 @@ controls various qemu-system functions
 
 
 class qemu(object):
-
     @classmethod
     def construct_arm1176_execute(cls, qcow=''):
-        xargs = common.all_args()
-        cmd = str("qemu-system-aarch64 -kernel " +
-                  xargs['bin'] +
+        cmd = str("qemu-system-arm -kernel " +
+                  sources.do_arg(arg='bin', default='bin/kernel-qemu-4.14.79-stretch') +
                   " -cpu " +
-                  xargs['cpu32'] +
+                  sources.do_arg(arg='cpu32', default='arm1176') +
                   " -m " +
-                  xargs['mem_vers'] +
-                  " -M versatilepb -dtb bin/versatile-pb.dtb -no-reboot -serial stdio -append " +
+                  sources.do_arg(arg='mem_vers', default='256') +
+                  " -M " +
+                  # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
+                  # yes generic ARM virt is better and newer....xD
+                  sources.do_arg(arg='device32', default='versatilepb') +
+                  " -dtb bin/versatile-pb.dtb -no-reboot -serial stdio -append " +
                   '"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
                   qcow)
         return cmd
 
     @classmethod
-    def construct_arm64_execute(cls, qcow=''):
-        xargs = common.all_args()
-        cmd = str("qemu-system-aarch64 -M virt -m " +
-                  xargs['mem_64'] +
+    def construct_arm64_execute(cls, qcow='', k='en-us'):
+        cmd = str("qemu-system-aarch64 -M " +
+                  sources.do_arg(arg='device64', default='virt') +
+                  " -m " +
+                  sources.do_arg(arg='mem_64', default='2048') +
                   " -cpu " +
-                  xargs['cpu64'] +
-                  " -kernel bin/installer-linux -initrd bin/installer-initrd.gz " +
+                  sources.do_arg(arg='cpu64', default='cortex-a53') +
+                  " -kernel " +
+                  sources.do_arg(arg='bin', default='bin/installer-linux') +
+                  " -initrd + " +
+                  sources.do_arg(arg='initrd64', default='bin/installer-initrd.gz') +
                   " -no-reboot -serial stdio -append " +
                   ' "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" ' +
-                  " -k en-us " +
-                  '-hda ' +
-                  qcow)
+                  " -k " + k,
+                  '-hda ' + qcow)
         return cmd
 
     # TODO: implement these network bridge methods
@@ -85,7 +90,7 @@ class qemu(object):
 
     @classmethod
     def do_qemu_expand(cls, qcow=''):
-        xargs = common.all_args()
+        xargs = sources.load_args()
         cmd = str("qemu-img resize " + qcow + " " + xargs['qcow_size'])
         subprocess.Popen(cmd, shell=True).wait()
         sleep(.1)
@@ -164,7 +169,7 @@ class qemu(object):
 
     @classmethod
     def launch(cls, image):
-        xargs = common.all_args()
+        xargs = sources.load_args()
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
@@ -180,3 +185,4 @@ class qemu(object):
         else:
             subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
                              shell=True).wait()
+

@@ -1,8 +1,12 @@
 # local build dirs:
-bin
 image
 qemu
 OctoPrint
+
+# GCP docker stuff for ddns server, auto discovery, etc:
+ddns
+usbip
+DDNS.py
 
 # common:
 __pycache__

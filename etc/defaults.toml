@@ -1,15 +1,29 @@
 ###############################################################################################
 # clipi shortcut toml
-# defaults
+# all arguments
 ###############################################################################################
 
-# qemu:
+# qemu: #
+
+# (particularly for 32 bit guests) you'll probably want to supply a specific kernel,
+# like strech for versatilepb:
 bin = "bin/kernel-qemu-4.14.79-stretch"
-qcow_size = "+8G"
-mem_vers = "256"  # versatilepb doesn"t support over 256
-mem_64 = "2048"
+# bin = bin/installer-linux # (for -virt)
+
+qcow_size = "+8G"  # expanded virtual volume size
+
+device32 = 'versatilepb'
+# "initrd32" is always versatile-pb.dtb
+
+device64 = 'virt'
+initrd64 = 'bin/installer-initrd.gz'
+
+mem_vers = "256"  # versatilepb doesn"t support over 256M
+mem_64 = "2048"  # normal arm -virt devices are not restricted for memory
+
 aarch32 = "aarch32"
-cpu32 = "arm1176"
 aarch64 = "aarch64"
+
+cpu32 = "arm1176"
 cpu64 = "cortex-a53"
 name = "guest"
