@@ -17,7 +17,7 @@
 `clipi` builds and maintains organized directories for each OS as well a [persistent & convenient .qcow2](https://www.qemu.org/docs/master/interop/qemu-img.html)  QEMU disk image.  Too many huge source *.img* files and archives?  `clipi` cleans up after itself under the ```Utilities...``` menu.
 
 ***Write:***    
-`clipi` burns emulations to external disks!  Just insert a sd card or disk and follow the friendly prompts.  All files, `/home`, & guest directories are written out.
+`clipi` burns emulations to external disks!  Just insert a sd card or disk and follow the friendly prompts.  All files, `/home`, guest directories are written out.
 - *Need to pre-configure (or double check) wifi?  Add your ssid and password to [/wpa_supplicant.conf](https://github.com/Jesssullivan/clipi/blob/master/wpa_supplicant.conf) and copy the file to `/boot` in the freshly burned disk.*     
 - *Need pre-enabled ssh? copy [/ssh](https://github.com/Jesssullivan/clipi/blob/master/ssh) to `/boot` too.*
 
