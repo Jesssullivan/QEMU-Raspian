@@ -4,7 +4,7 @@
 ***An efficient toolset for Pi devices***
 
 *Emulate, organize, burn, manage a variety of distributions for Raspberry Pi.*
-    
+
 - - -
 
 ### Choose your own adventure....

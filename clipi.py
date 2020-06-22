@@ -20,7 +20,7 @@ from sources import sources
 
 def main():
     try:
-        if common.has_toml():
+        if sources.has_conf():
             config = toml.load(sys.argv[1])
             conf = True
         else:
