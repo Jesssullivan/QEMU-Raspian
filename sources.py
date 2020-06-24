@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 #
-# locations, names for image / iso files:
-#
+# locations, names for image / iso files
 # feel free to add some more at /sources.toml
 #
+# also methods for parsing shortcut config files (toml / yaml)
 """
 
 
@@ -60,17 +60,21 @@ class sources(object):
 
     @classmethod
     def load_args(cls):
-        for econfig in default_settings:
-            for etype in default_types:
-                try:
-                    if os.path.isfile(econfig + etype):
-                        if 'toml' in etype:
-                            source = toml.load(econfig + etype)
-                        else:
-                            source = yaml.load(open(econfig + etype), Loader=yaml.Loader)
-                        return source
-                except:
-                    pass
+        if sources.has_conf():
+            source = toml.load(sys.argv[1])
+            return source
+        else:
+            for econfig in default_settings:
+                for etype in default_types:
+                    try:
+                        if os.path.isfile(econfig + etype):
+                            if 'toml' in etype:
+                                source = toml.load(econfig + etype)
+                            else:
+                                source = yaml.load(open(econfig + etype), Loader=yaml.Loader)
+                            return source
+                    except:
+                        pass
 
     @classmethod
     def do_arg(cls, arg, default):
@@ -79,8 +83,25 @@ class sources(object):
             k = xargs[arg]
             return k
         except KeyError:
+            print('KeyError error with ' + arg + ' ...')
             return default
         except:
-            print('config error w/' + arg + ' ...')
+            print('config error with ' + arg + ' ...')
             return default
+
+    @classmethod
+    def opt_kwargs(cls, **kwargs):
+        return kwargs
+
+    @classmethod
+    def load_conf(cls):
+        try:
+            if sources.has_conf():
+                config = toml.load(sys.argv[1])
+                return config
+            else:
+                return None
+        except:
+            return None
+
 

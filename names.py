@@ -26,6 +26,14 @@ class names(object):
         return str('image/' + cls.src_name(img_text)).split('.')[0]
 
     @classmethod
+    def src_build(cls, img_text):  # /build/ is the destination used by arm64 when extracting kernel & ramdisk stuff
+        return str('image/' + cls.src_name(img_text)).split('.')[0] + '/build/'
+
+    @classmethod
+    def src_mnt(cls, img_text):  # /mnt/ is the mount point used by arm64 when extracting kernel & ramdisk stuff
+        return str('image/' + cls.src_name(img_text)).split('.')[0] + '/mnt/'
+
+    @classmethod
     def src_zip(cls, img_text):
         return str(names.src_dir(img_text) + '/' + names.src_name(img_text).split('.zip')[0] + '.zip')
 

@@ -5,15 +5,19 @@
 # run:
 
 'Launch a Pi emulation' = true
-'image' = 'buster_desktop'
+'image' = 'stretch_lite'
 'use64' = true  # optional 'true' uses aarch64 w/ cortex-a53- bootstrap install, needs extra attention during setup
 
 ###############################################################################################
 # defaults #
 ###############################################################################################
 
-# qemu:
-qcow_size = "+8G"
-mem_64 = "2048"
+bin = "bin/installer-linux" # (for -virt)
+
+qcow_size = "+8G"  # expanded virtual volume size
+device64 = 'virt'
+initrd64 = 'bin/installer-initrd.gz'
+mem_64 = "2048"  # normal arm -virt devices are not restricted for memory
 aarch64 = "aarch64"
 cpu64 = "cortex-a53"
+name = "guest"

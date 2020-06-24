@@ -10,7 +10,10 @@ Written by Jess Sullivan
 from common import *
 from names import names
 from sources import sources
-# import threading
+from fdisk import fdisk
+import os
+import toml
+
 
 """
 qemu.py:
@@ -37,21 +40,22 @@ class qemu(object):
         return cmd
 
     @classmethod
-    def construct_arm64_execute(cls, qcow='', k='en-us'):
-        cmd = str("qemu-system-aarch64 -M " +
-                  sources.do_arg(arg='device64', default='virt') +
+    def construct_arm64_execute(cls, qcow=''):
+        cmd = str('qemu-system-aarch64 -kernel ' +
+                  sources.do_arg(arg='kernel', default='') +
+                  " -initrd " +
+                  sources.do_arg(arg='initrd', default='') +
                   " -m " +
                   sources.do_arg(arg='mem_64', default='2048') +
+                  " -M " +
+                  sources.do_arg(arg='device64', default='virt') +
                   " -cpu " +
                   sources.do_arg(arg='cpu64', default='cortex-a53') +
-                  " -kernel " +
-                  sources.do_arg(arg='bin', default='bin/installer-linux') +
-                  " -initrd + " +
-                  sources.do_arg(arg='initrd64', default='bin/installer-initrd.gz') +
-                  " -no-reboot -serial stdio -append " +
-                  ' "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" ' +
-                  " -k " + k,
-                  '-hda ' + qcow)
+                  " -serial stdio" +
+                  "-append " +
+                  sources.do_arg(arg='append',
+                                 default='"rw root=/dev/vda2 console=ttyAMA0 loglevel=8 rootwait fsck.repair=yes memtest=1"') +
+                  " -drive file=" + qcow + ",if=sd,id=hd-root")
         return cmd
 
     # TODO: implement these network bridge methods
@@ -169,7 +173,6 @@ class qemu(object):
 
     @classmethod
     def launch(cls, image):
-        xargs = sources.load_args()
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
@@ -177,12 +180,31 @@ class qemu(object):
         # this way we can call to launch an image that we don't actually have yet,
         # letting qemu.ensure_img() go fetch & prepare a fresh one
         launch_qcow = qemu.ensure_img(image)
-        print(launch_qcow)
+        try:
+            if sources.has_conf():
+                config = toml.load(sys.argv[1])
+                conf = True
+            else:
+                config = None
+                conf = False
+        except:
+            config = None
+            conf = False
 
-        if common.arg_true(xargs, 'use64'):
-            subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
-                             shell=True).wait()
-        else:
-            subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
-                             shell=True).wait()
+        def arg_true(text):
+            try:
+                if config[text]:
+                    return True
+            except KeyError:
+                pass
 
+        if conf:
+            if arg_true('use64'):
+                print('launching 64 bit emulation ' + launch_qcow)
+                subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
+                                 shell=True).wait()
+                quit()
+        print('launching 64 bit emulation ' + launch_qcow)
+        subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
+                         shell=True).wait()
+        quit()

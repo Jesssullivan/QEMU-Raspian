@@ -8,7 +8,6 @@ Written by Jess Sullivan
 """
 
 from alias import alias
-# local modules:
 from common import *
 from common import common
 from dd import dd
@@ -16,9 +15,11 @@ from menus import menus
 from nmap import nmap
 from qemu import qemu
 from sources import sources
+import toml
 
 
 def main():
+
     try:
         if sources.has_conf():
             config = toml.load(sys.argv[1])

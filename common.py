@@ -9,17 +9,13 @@ Written by Jess Sullivan
 
 import os
 import subprocess
-# standard library:
 import sys
 from sys import platform
 from time import sleep
 from zipfile import ZipFile
 import requests
-import xml.etree.ElementTree as ET
+from shutil import which
 import xmltodict
-
-# pip install:
-import toml
 
 bin_url = "http://clipi-bins.s3.amazonaws.com/"
 
@@ -29,7 +25,6 @@ class common(object):
     @classmethod
     def is_installed(cls, cmd):
         print('checking if ' + cmd + ' is present...')
-        from shutil import which
         if not which(cmd):
             print("didn't find " + cmd)
             return False
@@ -37,17 +32,21 @@ class common(object):
             return True
 
     @classmethod
-    def dep_install(cls, dep):
+    def dep_install(cls, dep, brew_dep=None):
+
         if platform == "linux" or platform == "linux2":
-            print("environment: detected Linux, continuing...")
+            print("environment: detected Linux, continuing with apt-get....")
             subprocess.Popen('sudo apt-get install ' + dep + ' -y', shell=True).wait()
             # todo: maybe prompt for other package manager options
+
+        if brew_dep is None:
+            brew_dep = dep
 
         elif platform == 'darwin':
             print("environment: detected osx, not completely tested yet, YMMV")
             if cls.is_installed('brew'):
-                print('attempting brew install of ' + dep + '...... \n')
-                subprocess.Popen('brew install' + dep, shell=True).wait()
+                print('attempting brew install of ' + brew_dep + '...... \n')
+                subprocess.Popen('brew install' + brew_dep, shell=True).wait()
             else:
                 print("brew package manager not detected, attempting to install brew now...")
                 brew_string = str(
@@ -156,14 +155,3 @@ class common(object):
             sleep(.1)
         print('complete. \n\n')
 
-    @classmethod
-    def arg_true(cls, dic, arg):
-        try:
-            if dic[arg]:
-                return True
-        except:
-            pass
-
-    @classmethod
-    def opt_kwargs(cls, **kwargs):
-        return kwargs
