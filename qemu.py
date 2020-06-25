@@ -6,6 +6,23 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
+from pathlib import Path
+import glob
+for path in Path('mnt').rglob('linuz'):
+    print(path.name)
+
+
+import os, fnmatch
+
+
+def search_files(directory='mnt'):
+    for files in os.walk(directory):
+        for names in files:
+            for f in names:
+                print(f)
+                if 'linuz' in f:
+                    print(f)
+search_files('mnt')
 
 from common import *
 from names import names
@@ -18,10 +35,12 @@ import toml
 """
 qemu.py:
 controls various qemu-system functions
+prepares disk image source for emulation- also isolates disk image kernel & ramdisk 
 """
 
 
 class qemu(object):
+
     @classmethod
     def construct_arm1176_execute(cls, qcow=''):
         cmd = str("qemu-system-arm -kernel " +
@@ -39,6 +58,25 @@ class qemu(object):
                   qcow)
         return cmd
 
+    # TODO: remove current aarch64 stuff with better plan
+    @classmethod
+    def check_build_dirs(cls, image):
+        if not os.path.isdir(names.src_build(image)):
+            os.mkdir(names.src_build(image))
+        if not os.path.isdir(names.src_mnt(image)):
+            os.mkdir(names.src_mnt(image))
+
+    @classmethod
+    def mnt(cls, image, block=0, t='ext4'):
+        fblock = block * 512
+        cmd = str('sudo mount -o offset= ' +
+                  str(fblock) +
+                  ' -t ' + t + ' ' +
+                  image + ' ' +
+                  names.src_mnt(image))
+        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait()
+        print('completed mount attempt....')
+
     @classmethod
     def construct_arm64_execute(cls, qcow=''):
         cmd = str('qemu-system-aarch64 -kernel ' +
@@ -50,7 +88,7 @@ class qemu(object):
                   " -M " +
                   sources.do_arg(arg='device64', default='virt') +
                   " -cpu " +
-                  sources.do_arg(arg='cpu64', default='cortex-a53') +
+                  sources.do_arg(arg='cpu64', default='cortex-a57') +
                   " -serial stdio" +
                   "-append " +
                   sources.do_arg(arg='append',
@@ -198,13 +236,17 @@ class qemu(object):
             except KeyError:
                 pass
 
+        # TODO: better to build kernel / ramdisk elsewhere then add generic aarch64 method
+        """
         if conf:
             if arg_true('use64'):
                 print('launching 64 bit emulation ' + launch_qcow)
                 subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
                                  shell=True).wait()
-                quit()
-        print('launching 64 bit emulation ' + launch_qcow)
+                quit(
+        """
+
+        print('launching ARM 1176 emulation @ ' + launch_qcow)
         subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
                          shell=True).wait()
         quit()
