@@ -46,9 +46,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
    - ***qemu_stretchlite.toml:***            
      fetches and starts a run-of-the-mill Raspbian stretch emulation without a desktop environment.         
    - ***qemu_stretchdesk.toml:***                            
-     fetches and starts a run-of-the-mill Raspbian stretch emulation with the standard raspbian a desktop environment.  
-   - ***qemu_buster64.toml:***                            
-     fetches and starts a 64 bit Raspbian Buster emulation with the standard raspbian a desktop environment (2g + Cortex a53)
+     fetches and starts a run-of-the-mill Raspbian stretch emulation with the standard raspbian a desktop environment. 
    - ***retropie.toml:***                            
      launch a (Pi3) retropie emulator emulation *(....recursively giggles recursively....  this is a joke xD)*
                 
