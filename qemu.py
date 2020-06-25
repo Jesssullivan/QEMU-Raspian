@@ -6,23 +6,6 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
-from pathlib import Path
-import glob
-for path in Path('mnt').rglob('linuz'):
-    print(path.name)
-
-
-import os, fnmatch
-
-
-def search_files(directory='mnt'):
-    for files in os.walk(directory):
-        for names in files:
-            for f in names:
-                print(f)
-                if 'linuz' in f:
-                    print(f)
-search_files('mnt')
 
 from common import *
 from names import names
