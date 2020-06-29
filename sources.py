@@ -2,7 +2,7 @@
 """
 #
 # locations, names for image / iso files
-# feel free to add some more at /sources.toml
+# feel free to add some more at etc/sources.toml
 #
 # also methods for parsing shortcut config files (toml / yaml)
 """
@@ -20,7 +20,7 @@ default_types = ['.toml', '.yaml']
 
 class sources(object):
 
-    # provides an option to provide sources.toml or add directly to dictionary
+    # provides an option to provide etc/sources.toml or add directly to dictionary
     @classmethod
     def get_source(cls):
         for econfig in default_configs:

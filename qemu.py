@@ -6,24 +6,9 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
-from pathlib import Path
-import glob
-for path in Path('mnt').rglob('linuz'):
-    print(path.name)
 
-
-import os, fnmatch
-
-
-def search_files(directory='mnt'):
-    for files in os.walk(directory):
-        for names in files:
-            for f in names:
-                print(f)
-                if 'linuz' in f:
-                    print(f)
-search_files('mnt')
-
+import platform
+import subprocess
 from common import *
 from names import names
 from sources import sources
@@ -43,17 +28,15 @@ class qemu(object):
 
     @classmethod
     def construct_arm1176_execute(cls, qcow=''):
-        cmd = str("qemu-system-arm -kernel " +
-                  sources.do_arg(arg='bin', default='bin/kernel-qemu-4.14.79-stretch') +
-                  " -cpu " +
-                  sources.do_arg(arg='cpu32', default='arm1176') +
+        cmd = str("qemu-system-aarch64 -kernel " +
+                  sources.do_arg(arg='bin', default='bin/kernel-qemu-4.19.50-buster') +
                   " -m " +
-                  sources.do_arg(arg='mem_vers', default='256') +
+                  sources.do_arg(arg='mem_64', default='2048') +
                   " -M " +
-                  # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
-                  # yes generic ARM virt is better and newer....xD
-                  sources.do_arg(arg='device32', default='versatilepb') +
-                  " -dtb bin/versatile-pb.dtb -no-reboot -serial stdio -append " +
+                  sources.do_arg(arg='device64', default='virt') +
+                  " -cpu " +
+                  sources.do_arg(arg='cpu64', default='cortex-a53') +
+                  " -dtb bin/versatile-pb-buster.dtb -no-reboot -serial stdio -append " +
                   '"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
                   qcow)
         return cmd
@@ -88,7 +71,7 @@ class qemu(object):
                   " -M " +
                   sources.do_arg(arg='device64', default='virt') +
                   " -cpu " +
-                  sources.do_arg(arg='cpu64', default='cortex-a57') +
+                  sources.do_arg(arg='cpu64', default='cortex-a53') +
                   " -serial stdio" +
                   "-append " +
                   sources.do_arg(arg='append',
