@@ -7,6 +7,7 @@
 'Launch a Pi emulation' = true
 'image' = 'stretch_lite'
 
+
 ###############################################################################################
 # defaults #
 ###############################################################################################
@@ -14,7 +15,7 @@
 # qemu:
 bin = "bin/kernel-qemu-4.14.79-stretch"
 qcow_size = "+8G"
-mem_64 = "2048"  # versatilepb doesn"t support over 256
-device64 = "virt"
-cpu6 = "arm1176"
+mem_vers = "256"  # versatilepb doesn"t support over 256
+aarch32 = "aarch32"
+cpu32 = "arm1176"
 
