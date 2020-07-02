@@ -33,7 +33,7 @@ if platform == "linux2":
           "please feel free to contribute methods for alternative package managers :)")
 
 if platform == "linux":
-    print("environment: detected Linux2, continuing with apt-get...")
+    print("environment: detected Linux, continuing with apt-get...")
 
 
 class kernel(object):
