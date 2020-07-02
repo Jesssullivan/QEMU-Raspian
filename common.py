@@ -103,6 +103,9 @@ class common(object):
         if not cls.is_installed(cmd='p7zip'):
             cls.dep_install(dep='p7zip')
 
+        if not cls.is_installed(cmd='texinfo'):
+            cls.dep_install(dep='texinfo')
+
     @classmethod
     def unzip(cls, input, output):
         if input.split('.')[-1] == 'zip':

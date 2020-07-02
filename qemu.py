@@ -12,7 +12,6 @@ import subprocess
 from common import *
 from names import names
 from sources import sources
-from fdisk import fdisk
 import os
 import toml
 
@@ -43,31 +42,10 @@ class qemu(object):
                   qcow)
         return cmd
 
-    # TODO: remove current aarch64 stuff with better plan
-    @classmethod
-    def check_build_dirs(cls, image):
-        if not os.path.isdir(names.src_build(image)):
-            os.mkdir(names.src_build(image))
-        if not os.path.isdir(names.src_mnt(image)):
-            os.mkdir(names.src_mnt(image))
-
-    @classmethod
-    def mnt(cls, image, block=0, t='ext4'):
-        fblock = block * 512
-        cmd = str('sudo mount -o offset= ' +
-                  str(fblock) +
-                  ' -t ' + t + ' ' +
-                  image + ' ' +
-                  names.src_mnt(image))
-        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait()
-        print('completed mount attempt....')
-
     @classmethod
     def construct_arm64_execute(cls, qcow=''):
         cmd = str('qemu-system-aarch64 -kernel ' +
                   sources.do_arg(arg='kernel', default='') +
-                  " -initrd " +
-                  sources.do_arg(arg='initrd', default='') +
                   " -m " +
                   sources.do_arg(arg='mem_64', default='2048') +
                   " -M " +
@@ -82,6 +60,7 @@ class qemu(object):
         return cmd
 
     # TODO: implement these network bridge methods
+    # (guest to guest bridging)
     @classmethod
     def get_network_depends(cls):
         if platform == 'darwin':
@@ -222,13 +201,14 @@ class qemu(object):
                 pass
 
         # TODO: better to build kernel / ramdisk elsewhere then add generic aarch64 method
+        # (see kernel.py for bits and whatnot on this)
         """
         if conf:
             if arg_true('use64'):
                 print('launching 64 bit emulation ' + launch_qcow)
                 subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
                                  shell=True).wait()
-                quit(
+                quit()
         """
 
         print('launching ARM 1176 emulation @ ' + launch_qcow)

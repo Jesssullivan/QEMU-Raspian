@@ -7,12 +7,6 @@
 # sudo chmod u+x virt.sh
 # ./virt.sh
 
-# get network utilties
-sudo apt-get update -y
-sudo apt-get install uml-utilities -y
-sudo apt-get install bridge-utils -y
-sudo apt-get update -y
-
 # brctl addbr br0
 read IPETH0 <<< $(ip -o link | awk '$2 != "lo:" {print $2}')
 echo ${IPETH0//:}

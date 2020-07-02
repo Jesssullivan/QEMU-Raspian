@@ -15,7 +15,6 @@ from names import names
 from sources import sources
 import os
 
-# import threading
 
 """
 fdisk.py:

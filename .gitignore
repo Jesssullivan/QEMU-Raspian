@@ -1,5 +1,6 @@
 # local build dirs:
 image
+image/**
 qemu
 OctoPrint
 
