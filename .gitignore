@@ -18,3 +18,4 @@ __pycache__
 **.zip
 **.qcow2
 **.xml
+tmp.file

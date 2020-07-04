@@ -83,6 +83,18 @@ class menus(object):
         print('please source or restart your shell for changes to take effect')
 
     @classmethod
+    def what_disk(cls):
+        # prompt following image selection for target disk
+        target = {
+            'type': 'input',
+            'name': 'target',
+            'message': "please type the target disk's system name, such as `sdb` or sdc`",
+            'default': "sdc"
+        }
+        response = prompt(target)
+        return response['target']
+
+    @classmethod
     def ask_brew(cls):
         # on osx, use brew a the package manager of choice
         brew_yn = {

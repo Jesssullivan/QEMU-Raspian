@@ -27,18 +27,17 @@ class qemu(object):
 
     @classmethod
     def construct_arm1176_execute(cls, qcow=''):
-        cmd = str("qemu-system-arm -kernel " +
-                  sources.do_arg(arg='bin', default='bin/kernel-qemu-4.14.79-stretch') +
+        cmd = str("qemu-system-aarch64 -kernel image/kernel8.img" +
                   " -cpu " +
-                  sources.do_arg(arg='cpu32', default='arm1176') +
+                  sources.do_arg(arg='cpu64', default='cortex-a53') +
                   " -m " +
-                  sources.do_arg(arg='mem_vers', default='256') +
+                  sources.do_arg(arg='mem_64', default='2048') +
                   " -M " +
                   # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
                   # yes generic ARM virt is better and newer....xD
-                  sources.do_arg(arg='device32', default='versatilepb') +
-                  " -dtb bin/versatile-pb.dtb -no-reboot -serial stdio -append " +
-                  '"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
+                  sources.do_arg(arg='device64', default='virt') +
+                  " -no-reboot -serial stdio -append " +
+                  '"init=/dev/sda2 panic=1 rootfsrtype=ext4 rw" -hda ' +
                   qcow)
         return cmd
 
