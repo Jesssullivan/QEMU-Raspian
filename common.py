@@ -17,10 +17,10 @@ import requests
 from shutil import which
 import xmltodict
 
-bin_url = "http://clipi-bins.s3.amazonaws.com/"
-
 
 class common(object):
+
+    bin_url = "http://clipi-bins.s3.amazonaws.com/"
 
     @classmethod
     def is_installed(cls, cmd):
@@ -67,7 +67,7 @@ class common(object):
             sleep(.2)
 
             print('fetching binary list from S3....')
-            index = requests.get(bin_url).content
+            index = requests.get(cls.bin_url).content
             with open('bin/index.xml', 'wb') as f:
                 f.write(index)
             sleep(.2)
@@ -81,7 +81,7 @@ class common(object):
             Keys = doc['ListBucketResult']['Contents']
             for f in Keys:
                 item = f['Key']
-                cmd = str("wget -O bin/" + item + " " + bin_url + item)
+                cmd = str("wget -O bin/" + item + " " + cls.bin_url + item)
                 subprocess.Popen(cmd, shell=True).wait()
             sleep(.2)
             print('done.')

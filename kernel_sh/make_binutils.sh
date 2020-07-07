@@ -8,7 +8,7 @@
 
 # this file is copied to binutils-obj by kernel.py
 
-../binutils-2.34/configure --prefix=/opt/aarch64 --target=aarch64-linux-gnu --disable-nls
+../binutils-2.29.1/configure --prefix=/opt/aarch64 --target=aarch64-linux-gnu --disable-nls
 make -j4
 sudo make install
 export PATH=$PATH:/opt/aarch64/bin/

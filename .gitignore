@@ -3,6 +3,8 @@ image
 image/**
 qemu
 OctoPrint
+linux
+linux/**
 
 # GCP docker stuff for ddns server, auto discovery, etc:
 ddns
@@ -18,3 +20,4 @@ __pycache__
 **.zip
 **.qcow2
 **.xml
+tmp.file

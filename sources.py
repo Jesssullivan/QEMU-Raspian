@@ -13,18 +13,17 @@ import toml
 import yaml
 
 
-default_configs = ['sources', 'etc/sources']
-default_settings = ['default', 'etc/default']
-default_types = ['.toml', '.yaml']
-
-
 class sources(object):
+
+    default_configs = ['sources', 'etc/sources']
+    default_settings = ['default', 'etc/default']
+    default_types = ['.toml', '.yaml']
 
     # provides an option to provide etc/sources.toml or add directly to dictionary
     @classmethod
     def get_source(cls):
-        for econfig in default_configs:
-            for etype in default_types:
+        for econfig in cls.default_configs:
+            for etype in cls.default_types:
                 try:
                     if os.path.isfile(econfig + etype):
                         if 'toml' in etype:
@@ -64,8 +63,8 @@ class sources(object):
             source = toml.load(sys.argv[1])
             return source
         else:
-            for econfig in default_settings:
-                for etype in default_types:
+            for econfig in cls.default_settings:
+                for etype in cls.default_types:
                     try:
                         if os.path.isfile(econfig + etype):
                             if 'toml' in etype:

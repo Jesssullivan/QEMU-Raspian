@@ -17,12 +17,13 @@ import os
 
 
 """
-fdisk.py:
-controls fdisk utility to inspect partitions & sectors from image.
+
+fdiskl.py:
+controls fdisk -l utility to inspect partitions & sectors from image.
 """
 
 
-class fdisk(object):
+class fdiskl(object):
 
     @classmethod
     def setup(cls):
@@ -36,10 +37,10 @@ class fdisk(object):
     @classmethod
     def read(cls, image):
         # ensure we've got fdisk- not sure yet if this works from osx via gptfdisk
-        # fdisk.setup()
+        # fdiskl.setup()
         cmd = str('fdisk -l ' + image)
 
-        # read fdisk output:
+        # read fdisk -l output:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
         result = proc.stdout.read().__str__()
 
@@ -58,7 +59,7 @@ class fdisk(object):
         #
         disk = {}
         for p in parts:
-            # sub dict 'part' will contain fdisk output values:
+            # sub dict 'part' will contain fdisk -l output values:
             part = {}
             # get just the number words:
             line = result.split(p)[1]
