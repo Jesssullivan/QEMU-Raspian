@@ -29,6 +29,9 @@ class kernel(object):
         if platform == 'darwin':
             print("environment: detected osx- aborting.  feel free to contribute osx methods...")
             quit()
+            
+        if platform == "linux":
+            print("environment: detected Linux, continuing with apt-get...")
 
         if platform == "linux2":
             print("environment: detected Linux, continuing with apt-get.....\n" +
@@ -106,5 +109,5 @@ class kernel(object):
                   ' -t ' + t + ' ' +
                   image + ' ' +
                   names.src_mnt(image))
-        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)  
         print('completed mount attempt....')
