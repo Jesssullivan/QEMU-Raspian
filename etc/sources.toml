@@ -21,3 +21,5 @@
 'dietpi' = 'https://dietpi.com/downloads/images/DietPi_RPi-ARMv6-Buster.7z'
 
 'retropie' = 'https://github.com/RetroPie/RetroPie-Setup/releases/download/4.6/retropie-buster-4.6-rpi2_rpi3.img.gz'
+
+'Pi64_OS_Beta' = 'https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2020-05-28/2020-05-27-raspios-buster-arm64.zip'

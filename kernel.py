@@ -16,7 +16,6 @@ from fdiskl import fdiskl
 import os
 import toml
 
-
 """
 kernel.py:
 install, prepare, make cross compile stuff for making 64 bit kernel
@@ -24,19 +23,19 @@ methods to build 64 bit images & emulations
 """
 
 
-if platform == 'darwin':
-    print("environment: detected osx- aborting.  feel free to contribute osx methods...")
-    quit()
-
-if platform == "linux2":
-    print("environment: detected Linux2, continuing with apt-get.....\n" +
-          "please feel free to contribute methods for alternative package managers :)")
-
-if platform == "linux":
-    print("environment: detected Linux2, continuing with apt-get...")
-
-
 class kernel(object):
+
+    def __init__(self):
+        if platform == 'darwin':
+            print("environment: detected osx- aborting.  feel free to contribute osx methods...")
+            quit()
+
+        if platform == "linux2":
+            print("environment: detected Linux, continuing with apt-get.....\n" +
+                  "please feel free to contribute methods for alternative package managers :)")
+
+        if platform == "linux":
+            print("environment: detected Linux, continuing with apt-get...")
 
     @classmethod
     def depends(cls):
@@ -54,6 +53,7 @@ class kernel(object):
 
         sleep(.1)
         print('\n preparing binutils...\n')
+        sleep(.1)
 
         common.ensure_dir(dirname='binutils-obj')
         subprocess.Popen("cp kernel_sh/make_binutils.sh binutils-obj/make_binutils.sh", shell=True).wait()
@@ -73,6 +73,7 @@ class kernel(object):
 
         sleep(.1)
         print('\n preparing gcc config...\n')
+        sleep(.1)
 
         common.ensure_dir(dirname='gcc-out')
         subprocess.Popen("cp kernel_sh/make_gcc.sh gcc-out/make_gcc.sh", shell=True).wait()
@@ -98,7 +99,7 @@ class kernel(object):
     @classmethod
     def mnt(cls, image, block=0, t='ext4'):
         # `image` currently must the path of a *.img file (not the source.toml name)
-        kernel.check_build_dirs(image='image/2019-09-26-raspbian-buster/2019-09-26-raspbian-buster.img')
+        kernel.check_build_dirs(image=image)
         fblock = block * 512
         cmd = str('sudo mount -o offset= ' +
                   str(fblock) +

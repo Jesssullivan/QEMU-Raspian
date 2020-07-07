@@ -8,7 +8,7 @@
 
 # this file is copied to gcc-out by kernel.py
 
-../gcc-8.4.0/configure --prefix=/opt/aarch64 --target=aarch64-linux-gnu --with-newlib --without-headers \
+../gcc-6.4.0/configure --prefix=/opt/aarch64 --target=aarch64-linux-gnu --with-newlib --without-headers \
  --disable-nls --disable-shared --disable-threads --disable-libssp --disable-decimal-float \
  --disable-libquadmath --disable-libvtv --disable-libgomp --disable-libatomic \
  --enable-languages=c

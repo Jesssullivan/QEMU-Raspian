@@ -7,10 +7,11 @@
 # tal.org/tutorials/raspberry-pi3-build-64-bit-kernel
 
 sudo mkdir /opt/aarch64
-echo -e "getting binutils...."
-wget https://ftp.gnu.org/gnu/binutils/binutils-2.34.tar.bz2
+echo -e "getting binutils....  \n rolling back to version 2.29.1 for now...."
+wget https://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2
+# wget https://ftp.gnu.org/gnu/binutils/binutils-2.34.tar.bz2
 
 echo -e "completed attempt to fetch binutils, uncompressing...."
-tar xf binutils-2.34.tar.bz2
+tar xf binutils-2.29.1.tar.bz2
 mkdir binutils-obj
 echo -e "all set preparing to make binutils @ /binutils-obj/..."

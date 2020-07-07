@@ -3,6 +3,8 @@ image
 image/**
 qemu
 OctoPrint
+linux
+linux/**
 
 # GCP docker stuff for ddns server, auto discovery, etc:
 ddns
