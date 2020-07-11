@@ -5,6 +5,8 @@ qemu
 OctoPrint
 linux
 linux/**
+tmp_build
+gcp_ddns
 
 # GCP docker stuff for ddns server, auto discovery, etc:
 ddns

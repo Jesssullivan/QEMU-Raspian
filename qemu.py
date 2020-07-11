@@ -12,6 +12,7 @@ import subprocess
 from common import *
 from names import names
 from sources import sources
+from kernel import kernel
 import os
 import toml
 
@@ -26,7 +27,7 @@ prepares disk image source for emulation- also isolates disk image kernel & ramd
 class qemu(object):
 
     @classmethod
-    def construct_arm1176_execute(cls, qcow=''):
+    def construct_arm1176(cls, qcow=''):
         cmd = str("qemu-system-arm -kernel " +
                   sources.do_arg(arg='bin', default='bin/kernel-qemu-4.14.79-stretch') +
                   " -cpu " +
@@ -43,50 +44,28 @@ class qemu(object):
         return cmd
 
     @classmethod
-    def construct_arm64_execute(cls, qcow=''):
-        cmd = str('qemu-system-aarch64 -kernel ' +
-                  sources.do_arg(arg='kernel', default='') +
+    def construct_arm64(cls, qcow=''):
+        cmd = str("qemu-system-aarch64 " +
+                  " -kernel " +
+                  sources.do_arg(arg='kernel', default='bin/wimvanderbauwhede/vmlinuz') +
+                  " -initrd " +
+                  sources.do_arg(arg='initrd', default='bin/wimvanderbauwhede/initrd.img') +
                   " -m " +
                   sources.do_arg(arg='mem_64', default='2048') +
                   " -M " +
                   sources.do_arg(arg='device64', default='virt') +
                   " -cpu " +
                   sources.do_arg(arg='cpu64', default='cortex-a53') +
-                  " -serial stdio" +
-                  "-append " +
+                  " -append " +
                   sources.do_arg(arg='append',
-                                 default='"rw root=/dev/vda2 console=ttyAMA0 loglevel=8 rootwait fsck.repair=yes memtest=1"') +
-                  " -drive file=" + qcow + ",if=sd,id=hd-root")
+                                 default='"rw root=/dev/vda2 console=ttyAMA0 rootwait fsck.repair=yes memtest=1"') +
+                  " -drive " +
+                  " file=" + qcow + ",format=qcow2,if=sd,id=hd-root" +
+                  " -device virtio-blk-device,drive=hd-root" +
+                  " -netdev user,id=net0 " +
+                  " -no-reboot -monitor stdio " +
+                  " -device virtio-net-device,netdev=net0 ")
         return cmd
-
-    # TODO: implement these network bridge methods
-    # (guest to guest bridging)
-    @classmethod
-    def get_network_depends(cls):
-        if platform == 'darwin':
-            print('cannot install network bridge depends on mac OSX')
-            return 0
-        else:
-            print('make sure /network is ready to install....')
-            subprocess.Popen('sudo chmod u+x network/apt_depends.sh', shell=True).wait()
-            print('installing.....')
-            subprocess.Popen('./network/apt_depends.sh', shell=True).wait()
-            sleep(.1)
-            print('done.')
-
-    @classmethod
-    def start_dhclient(cls):
-        if platform == 'darwin':
-            print('cannot use dhclient networking on mac OSX')
-            return 0
-        else:
-            print('launching dhclient thread.....')
-            subprocess.Popen('sudo chmod u+x network/dhclient.sh', shell=True).wait()
-            sleep(.25)
-            subprocess.Popen('./network/dhclient.sh', shell=True).wait()
-            sleep(.1)
-            print('exited dhclient thread.')
-            sleep(.1)
 
     @classmethod
     def construct_qemu_convert(cls, img, qcow):
@@ -161,16 +140,6 @@ class qemu(object):
 
                 sleep(.25)
 
-            try:
-                if os.path.isfile(names.any_img(image)):
-                    subprocess.Popen(cls.construct_qemu_convert(img=names.any_img(image),
-                                                                qcow=names.src_qcow(image)),
-                                     shell=True).wait()
-                    sleep(.25)
-                    cls.do_qemu_expand(names.src_qcow(image))
-            except:
-                pass
-
         return names.any_qcow(image)
 
     @classmethod
@@ -178,10 +147,8 @@ class qemu(object):
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
-        # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
-        # this way we can call to launch an image that we don't actually have yet,
-        # letting qemu.ensure_img() go fetch & prepare a fresh one
-        launch_qcow = qemu.ensure_img(image)
+        # launching 64 bit emulation is only accessible via explicitly
+        # setting `use_64` argument as `true` via toml / yaml argument file.
         try:
             if sources.has_conf():
                 config = toml.load(sys.argv[1])
@@ -200,18 +167,30 @@ class qemu(object):
             except KeyError:
                 pass
 
-        # TODO: better to build kernel / ramdisk elsewhere then add generic aarch64 method
-        # (see kernel.py for bits and whatnot on this)
-        """
+        # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
+        # this way we can call to launch an image that we don't actually have yet,
+        # letting qemu.ensure_img() go fetch & prepare a fresh one
+        launch_qcow = qemu.ensure_img(image)
+
+        try:
+            if os.path.isfile(names.any_img(image)):
+                subprocess.Popen(cls.construct_qemu_convert(img=names.any_img(image),
+                                                            qcow=names.src_qcow(image)),
+                                 shell=True).wait()
+                sleep(.25)
+                cls.do_qemu_expand(names.src_qcow(image))
+        except:
+            pass
+
         if conf:
             if arg_true('use64'):
-                print('launching 64 bit emulation ' + launch_qcow)
-                subprocess.Popen(cls.construct_arm64_execute(qcow=launch_qcow),
-                                 shell=True).wait()
+                # to build kernel / ramdisk stuff elsewhere, see kernel.py
+                kernel.replace_fstab(image=image)
+                print('launching 64 bit emulation ')
+                subprocess.Popen(qemu.construct_arm64(qcow=launch_qcow), shell=True).wait()
                 quit()
-        """
 
         print('launching ARM 1176 emulation @ ' + launch_qcow)
-        subprocess.Popen(cls.construct_arm1176_execute(qcow=launch_qcow),
+        subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow),
                          shell=True).wait()
         quit()

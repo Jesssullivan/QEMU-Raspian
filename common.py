@@ -103,8 +103,8 @@ class common(object):
         if not cls.is_installed(cmd='p7zip'):
             cls.dep_install(dep='p7zip')
 
-        if not cls.is_installed(cmd='texinfo'):
-            cls.dep_install(dep='texinfo')
+        # if not cls.is_installed(cmd='texinfo'):
+            # cls.dep_install(dep='texinfo')
 
     @classmethod
     def unzip(cls, input, output):
@@ -151,7 +151,7 @@ class common(object):
     @classmethod
     def cleanup(cls):
         # removes as admin from shell to avoid a wonky super python user xD
-        subprocess.Popen('sudo rm -rf image', shell=True).wait()
+        subprocess.Popen('sudo rm -rf image .pi', shell=True).wait()
         print()
         for x in range(3):
             print('...\n')

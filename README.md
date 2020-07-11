@@ -71,5 +71,7 @@ python3 clipi.py
         
  <br>    
     
-### *`clipi` offers an interactive command line application designed to streamline the deployment of Raspberry Pi devices.  `clipi` is written in Python for Debian-based operating systems, with experimental support for Mac OS via [brew](https://brew.sh/).*
-       
+***`clipi` offers an interactive command line application designed to streamline the deployment of Raspberry Pi devices.  `clipi` is written in Python for Debian-based operating systems, with experimental support for Mac OS via [brew](https://brew.sh/).***
+           
+<br>    
+        

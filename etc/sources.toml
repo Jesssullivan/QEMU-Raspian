@@ -10,10 +10,6 @@
 
 'stretch_desktop' = 'http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-04-09/2019-04-08-raspbian-stretch.zip'
 
-'buster_lite' = 'http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip'
-
-'buster_desktop' = 'http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip'
-
 'motioneye_os' = 'https://github.com/ccrisan/motioneyeos/releases/download/20190911/motioneyeos-raspberrypi-20190911.img.xz'
 
 'octoprint' = 'https://github.com/guysoft/OctoPi/releases/download/0.17.0/octopi-buster-lite-0.17.0.zip'
@@ -22,4 +18,10 @@
 
 'retropie' = 'https://github.com/RetroPie/RetroPie-Setup/releases/download/4.6/retropie-buster-4.6-rpi2_rpi3.img.gz'
 
+'debian_daily' = 'https://raspi.debian.net/daily/raspi_3.img.xz'
+
 'Pi64_OS_Beta' = 'https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2020-05-28/2020-05-27-raspios-buster-arm64.zip'
+
+'buster_lite' = 'http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip'
+
+'buster_desktop' = 'http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-09-30/2019-09-26-raspbian-buster.zip'

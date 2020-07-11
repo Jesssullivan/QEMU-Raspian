@@ -12,14 +12,16 @@ import subprocess
 from common import *
 from names import names
 from sources import sources
-from fdiskl import fdiskl
 import os
 import toml
+import re
 
 """
 kernel.py:
-install, prepare, make cross compile stuff for making 64 bit kernel
-methods to build 64 bit images & emulations
+ramdisk & kernel related utilities
+-   controls fdisk -l utility to inspect partitions & sectors from image.
+-   install, prepare, make cross compile stuff for making 64 bit kernel- 
+-   gcc- only really pertains to building a new kernel from source- for most purposes just use any of the existing binaries)
 """
 
 
@@ -88,7 +90,6 @@ class kernel(object):
     @classmethod
     def check_build_dirs(cls, image):
         # `image` currently must the path of a *.img file
-        #  todo: this should be less brittle
         if not os.path.isdir(names.src_dir(image)):
             os.mkdir(names.src_dir(image))
         if not os.path.isdir(names.src_build(image)):
@@ -96,15 +97,96 @@ class kernel(object):
         if not os.path.isdir(names.src_mnt(image)):
             os.mkdir(names.src_mnt(image))
 
+    """
     @classmethod
-    def mnt(cls, image, block=0, t='ext4'):
+    def get_kernel(cls):
+        cmd = 'git clone --depth=1 -b rpi-4.19.y https://github.com/raspberrypi/linux.git'
+    """
+
+    @classmethod
+    def replace_fstab(cls, image, block=0):
         # `image` currently must the path of a *.img file (not the source.toml name)
         kernel.check_build_dirs(image=image)
-        fblock = block * 512
-        cmd = str('sudo mount -o offset= ' +
-                  str(fblock) +
-                  ' -t ' + t + ' ' +
-                  image + ' ' +
-                  names.src_mnt(image))
-        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        # mount must use short path names due to file name encryption silliness
+        # https://bugs.launchpad.net/ecryptfs/+bug/344878 lol
+        if not os.path.isdir('.pi'):
+            os.mkdir('.pi')
+        if not os.path.isdir('.pi/mnt'):
+            os.mkdir('.pi/mnt')
+
+        disk = kernel.fdisk_read(names.src_img(image))['.img2']
+        fblock = int(disk['Start']) * 512
+
+        cmd_cp_in = str('sudo cp -rf ' + names.src_img(image) + ' ' + '.pi/pi.img')
+        subprocess.Popen(cmd_cp_in, shell=True, stdout=subprocess.PIPE).wait()
+        print('completed copy in attempt....')
+        sleep(.5)
+
+        cmd_mnt = str('sudo mount -o offset=' +
+                      str(fblock) + ' ' +
+                      '.pi/pi.img .pi/mnt')
+        subprocess.Popen(cmd_mnt, shell=True, stdout=subprocess.PIPE)
         print('completed mount attempt....')
+        sleep(.5)
+
+        cmd_fstab = 'sudo cp -f kernel_sh/fstab t/etc/fstab'
+        subprocess.Popen(cmd_fstab, shell=True, stdout=subprocess.PIPE)
+        sleep(.1)
+        print('completed replace fstab attempt....')
+
+        cmd_umnt = str('sudo umount .pi/mnt')
+        subprocess.Popen(cmd_umnt, shell=True, stdout=subprocess.PIPE).wait()
+        print('completed unmount.')
+
+        cmd_cp_out = str('sudo cp -rf .pi/pi.img ' + names.src_img(image))
+        subprocess.Popen(cmd_cp_out, shell=True, stdout=subprocess.PIPE)
+        print('completed copy attempt....')
+
+    @staticmethod
+    def fdisk_setup():
+        if sys.platform == 'darwin':
+            print('detected osx, checking fdisk in gptfdisk via brew...')
+        if sys.platform == "linux" or sys.platform == "linux2":
+            print('checking fdisk...')
+        common.dep_install(dep='fdisk', brew_dep='gptfdisk')
+        sleep(.1)
+
+    @classmethod
+    def fdisk_read(cls, image):
+        # ensure we've got fdisk- not sure yet if this works from osx via gptfdisk
+        cmd = str('fdisk -l ' + image)
+
+        # read fdisk -l output:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+        result = proc.stdout.read().__str__()
+
+        # figure out what type we should iterate with when looking via file / part contained within image-
+        # (plz only use .img for now)
+        if '.iso' in result:
+            iter = '.iso'
+        # not sure it this one will work......
+        if '.qcow2' in result:
+            iter = '.qcow2'
+        else:
+            iter = '.img'
+
+        # chop up fdisk results by file / partition:
+        parts = re.findall(r'' + iter + '\d', result)
+
+        disk = {}
+        for p in parts:
+            # sub dict 'part' will contain fdisk -l output values:
+            part = {}
+            # get just the number words:
+            line = result.split(p)[1]
+            words = re.split(r'\s+', line)
+            # place each word into 'part':
+            part['Start'] = words[1]
+            part['End'] = words[2]
+            part['Sectors'] = words[3]
+            part['Size'] = words[4]
+            part['Id'] = words[5]
+            part['Format'] = words[6].split('\\n')[0]
+            # stick this part into 'disk', move onto next disk part:
+            disk[p] = part
+        return disk
