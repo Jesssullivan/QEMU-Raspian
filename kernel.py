@@ -114,33 +114,39 @@ class kernel(object):
         if not os.path.isdir('.pi/mnt'):
             os.mkdir('.pi/mnt')
 
-        disk = kernel.fdisk_read(names.src_img(image))['.img2']
-        fblock = int(disk['Start']) * 512
+        try:
+            disk = kernel.fdisk_read(names.src_img(image))['.img2']
+            fblock = int(disk['Start']) * 512
 
-        cmd_cp_in = str('sudo cp -rf ' + names.src_img(image) + ' ' + '.pi/pi.img')
-        subprocess.Popen(cmd_cp_in, shell=True, stdout=subprocess.PIPE).wait()
-        print('completed copy in attempt....')
-        sleep(.5)
+            cmd_cp_in = str('sudo cp -rf ' + names.src_img(image) + ' ' + '.pi/pi.img')
+            subprocess.Popen(cmd_cp_in, shell=True, stdout=subprocess.PIPE).wait()
+            print('completed copy in attempt....')
+            sleep(.5)
 
-        cmd_mnt = str('sudo mount -o offset=' +
-                      str(fblock) + ' ' +
-                      '.pi/pi.img .pi/mnt')
-        subprocess.Popen(cmd_mnt, shell=True, stdout=subprocess.PIPE)
-        print('completed mount attempt....')
-        sleep(.5)
+            cmd_mnt = str('sudo mount -o offset=' +
+                          str(fblock) + ' ' +
+                          '.pi/pi.img .pi/mnt')
+            subprocess.Popen(cmd_mnt, shell=True, stdout=subprocess.PIPE)
+            print('completed mount attempt....')
+            sleep(.5)
 
-        cmd_fstab = 'sudo cp -f kernel_sh/fstab t/etc/fstab'
-        subprocess.Popen(cmd_fstab, shell=True, stdout=subprocess.PIPE)
-        sleep(.1)
-        print('completed replace fstab attempt....')
+            cmd_fstab = 'sudo cp -f kernel_sh/fstab .pi/mnt/etc/fstab'
+            subprocess.Popen(cmd_fstab, shell=True, stdout=subprocess.PIPE)
+            sleep(.1)
+            print('completed replace fstab attempt....')
 
-        cmd_umnt = str('sudo umount .pi/mnt')
-        subprocess.Popen(cmd_umnt, shell=True, stdout=subprocess.PIPE).wait()
-        print('completed unmount.')
+            cmd_umnt = str('sudo umount .pi/mnt')
+            subprocess.Popen(cmd_umnt, shell=True, stdout=subprocess.PIPE).wait()
+            print('completed unmount.')
 
-        cmd_cp_out = str('sudo cp -rf .pi/pi.img ' + names.src_img(image))
-        subprocess.Popen(cmd_cp_out, shell=True, stdout=subprocess.PIPE)
-        print('completed copy attempt....')
+            cmd_cp_out = str('sudo cp -rf .pi/pi.img ' + names.src_img(image))
+            subprocess.Popen(cmd_cp_out, shell=True, stdout=subprocess.PIPE)
+            print('completed copy attempt....')
+
+        except TypeError:
+            sleep(.2)
+            print('moving on from fdisk....')
+            pass
 
     @staticmethod
     def fdisk_setup():

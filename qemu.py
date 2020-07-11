@@ -45,8 +45,7 @@ class qemu(object):
 
     @classmethod
     def construct_arm64(cls, qcow=''):
-        cmd = str("qemu-system-aarch64 " +
-                  " -kernel " +
+        cmd = str("qemu-system-aarch64 -kernel " +
                   sources.do_arg(arg='kernel', default='bin/wimvanderbauwhede/vmlinuz') +
                   " -initrd " +
                   sources.do_arg(arg='initrd', default='bin/wimvanderbauwhede/initrd.img') +
