@@ -31,6 +31,9 @@ class kernel(object):
         if platform == 'darwin':
             print("environment: detected osx- aborting.  feel free to contribute osx methods...")
             quit()
+            
+        if platform == "linux":
+            print("environment: detected Linux, continuing with apt-get...")
 
         if platform == "linux2":
             print("environment: detected Linux, continuing with apt-get.....\n" +
