@@ -41,3 +41,29 @@ class dd(object):
         print('finished xD \n ' +
               'to pre-enable or double check wifi and ssh, reinsert sd_disk, then ' +
               'copy file `ssh` and a configured `wpa_supplicant.conf` to /boot :)')
+
+    @classmethod
+    def dd_write_verbatim(cls, sd_disk, image):
+        common.main_install()
+        common.ensure_dir()
+        common.ensure_bins()
+
+        qemu.ensure_img(image)
+        print('preparing to write out image using verbatim dd utility...')
+        sleep(.1)
+
+        print('unmounting target....')
+        umount_cmd = str('umount /dev/' + str(sd_disk) + ' 2>/dev/null || true')
+        subprocess.Popen(umount_cmd, shell=True).wait()
+
+        print('writing to target....')
+        dd_cmd = str('sudo dd if=' + names.any_img(image) + ' of=/dev/' + sd_disk + ' bs=1048576')
+        subprocess.Popen(dd_cmd, shell=True).wait()
+        sleep(.1)
+
+        print('completed write, syncing....')
+        subprocess.Popen('sync ', shell=True).wait()
+
+        print('finished xD \n ' +
+              'to pre-enable wifi and ssh, reinsert sd_disk, then ' +
+              'copy file `ssh` and a configured `wpa_supplicant.conf` to /boot :)')

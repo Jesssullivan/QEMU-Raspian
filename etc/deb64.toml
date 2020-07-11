@@ -1,0 +1,11 @@
+###############################################################################################
+# clipi shortcut toml #
+###############################################################################################
+
+# run:
+
+'Launch a Pi emulation' = true
+'use64' = true
+'image' = 'debian_daily'
+'kernel' = 'bin/ddebian/vmlinuz-4.19.0-9-arm64'
+'initrd' = 'bin/ddebian/initrd.img-4.19.0-9-arm64'

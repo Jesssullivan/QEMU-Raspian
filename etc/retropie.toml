@@ -10,19 +10,3 @@
 # set up guest with:
 #$ sudo chmod u+x RetroPie-Setup/retropie_setup.sh
 #$ sudo __platform=rpi3 ./RetroPie-Setup/retropie_setup.sh
-
-###############################################################################################
-# defaults #
-###############################################################################################
-
-# qemu:
-# bin = "bin/kernel-qemu-4.14.79-stretch"
-# qcow_size = "+12G"
-# mem_vers = "256"  # versatilepb doesn"t support over 256
-# mem_64 = "2048"
-# aarch32 = "aarch32"
-# cpu32 = "arm1176"
-# aarch64 = "aarch64"
-# cpu64 = "cortex-a53"
-# name = "guest"
-

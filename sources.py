@@ -82,10 +82,10 @@ class sources(object):
             k = xargs[arg]
             return k
         except KeyError:
-            print('KeyError error with ' + arg + ' ...')
+            # print('KeyError error with ' + arg + ' ...')
             return default
         except:
-            print('config error with ' + arg + ' ...')
+            # print('config error with ' + arg + ' ...')
             return default
 
     @classmethod

@@ -30,6 +30,10 @@ class names(object):
         return str('image/' + cls.src_name(img_text)).split('.')[0] + '/build/'
 
     @classmethod
+    def src_kern(cls, img_text):
+        return str('image/' + cls.src_name(img_text)).split('.')[0] + '/kern/'
+
+    @classmethod
     def src_mnt(cls, img_text):  # /mnt/ is the mount point used by arm64 when extracting kernel & ramdisk stuff
         return str('image/' + cls.src_name(img_text)).split('.')[0] + '/mnt/'
 
@@ -76,6 +80,7 @@ class names(object):
         for file in os.listdir(names.src_dir(img_text)):
             if file.endswith(".img"):
                 return os.path.join(names.src_dir(img_text), file)
+        return False
 
     @classmethod
     def any_zip(cls, img_text):
@@ -83,11 +88,13 @@ class names(object):
             if file.endswith(".zip"):
                 return os.path.join(names.src_dir(img_text), file)
 
+
     @classmethod
     def any_qcow(cls, img_text):
         for file in os.listdir(names.src_dir(img_text)):
             if file.endswith(".qcow2"):
                 return os.path.join(names.src_dir(img_text), file)
+
 
     @classmethod
     def any_7z(cls, img_text):
@@ -101,8 +108,10 @@ class names(object):
             if file.endswith(".gz"):
                 return os.path.join(names.src_dir(img_text), file)
 
+
     @classmethod
     def any_xz(cls, img_text):
         for file in os.listdir(names.src_dir(img_text)):
             if file.endswith(".xz"):
                 return os.path.join(names.src_dir(img_text), file)
+

@@ -47,18 +47,28 @@ def main():
         if arg_true('Burn a bootable disk image'):
             image = sources.get_source()[config['image']]
             print(sources.get_source())
-            target_disk = [config['target_disk']]
+            target_disk = config['target_disk']
+            print(target_disk)
             print("checking types....")
+
+            if arg_true('verbatim'):
+                dd.dd_write_verbatim(sd_disk=target_disk, image=image)
+                quit()
+
             dd.dd_write(sd_disk=target_disk, image=image)
+            quit()
 
         if arg_true('Find Pi devices on this network'):
             nmap.nmap_search()
+            quit()
 
         if arg_true('Cleanup...'):
             common.cleanup()
+            quit()
 
         if arg_true('Install clipi as alias'):
             alias.do_alias()
+            quit()
 
         if arg_true('Check / install dependencies'):
             print(str('checking all clipi.py depends for your ' +
@@ -76,7 +86,8 @@ def main():
         if op1 == 'Burn a bootable disk image':
             print('Follow the prompts: select and image')
             response_image = menus.launch_img()
-            target_disk = dd.what_disk()
+            target_disk = menus.what_disk()
+
             print("checking types....")
             dd.dd_write(sd_disk=target_disk, image=response_image)
 
