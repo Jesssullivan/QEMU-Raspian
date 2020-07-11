@@ -186,11 +186,11 @@ class qemu(object):
             if arg_true('use64'):
                 # to build kernel / ramdisk stuff elsewhere, see kernel.py
                 kernel.replace_fstab(image=image)
-                print('launching 64 bit emulation ')
+                print('launching 64 bit emulation')
                 subprocess.Popen(qemu.construct_arm64(qcow=launch_qcow), shell=True).wait()
                 quit()
 
-        print('launching ARM 1176 emulation @ ' + launch_qcow)
+        print('launching ARM 1176 emulation @ ')
         subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow),
                          shell=True).wait()
         quit()
