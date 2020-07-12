@@ -15,8 +15,9 @@ echo -e "\n double-checking gcc-aarch64-linux-gnu... \n"
 apt-get install gcc-aarch64-linux-gnu -y
 echo -e "\n double-checking libguestfs-tools for guestfish... \n"
 apt install libguestfs-tools
-
-echo -e "all set with depends..."
+echo -e "\n double-checking qemu-debootstrap for chroot build... \n"
+apt install qemu-debootstrap
+echo -e "\n all set with depends..."
 
 
 

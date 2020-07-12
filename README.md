@@ -62,8 +62,7 @@ Supply a shortcut file like so:
      launch a (Pi3) retropie emulator emulation *(....recursively giggles recursively....  this is a joke xD)*
    - ***pi64.toml:***            
      fetches, assembles, starts a cranky 64 bit Raspbian buster emulation based on the 64 bit piOS Beta image.
-     
-                       
+        
 - - -    
     
 <br>   
@@ -87,4 +86,4 @@ python3 clipi.py
 ***`clipi` offers an interactive command line application designed to streamline the deployment of Raspberry Pi devices.  `clipi` is written in Python for Debian-based operating systems, with experimental support for Mac OS via [brew](https://brew.sh/).***
            
 <br>    
-        
+

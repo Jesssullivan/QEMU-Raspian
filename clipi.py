@@ -11,6 +11,7 @@ from alias import alias
 from common import *
 from common import common
 from dd import dd
+from kernel import kernel
 from menus import menus
 from nmap import nmap
 from qemu import qemu
@@ -50,7 +51,6 @@ def main():
             target_disk = config['target_disk']
             print(target_disk)
             print("checking types....")
-
             if arg_true('verbatim'):
                 dd.dd_write_verbatim(sd_disk=target_disk, image=image)
                 quit()
@@ -75,7 +75,16 @@ def main():
                       platform + ' - based machine....'))
             common.main_install()
 
-    else:
+        if arg_true('Check / build kernel & gcc tools'):
+            common.main_install()
+            print('checking all depends in /kernel_sh.....')
+            kernel.depends()
+            print('configuring & building binutils...')
+            kernel.build_binutils()
+            print('configuring & building gcc...')
+            kernel.build_gcc()
+
+    else:  # if there isn't a provided shortcut file, use the interactive menus
 
         op1 = menus.main_menu()
 
@@ -83,13 +92,24 @@ def main():
             image = menus.launch_img()
             qemu.launch(image)
 
+        if op1 == '__Launch a Pi emulation w/ 64 bits':
+            print('\n!!this is an experimental feature, YMMV!!\n')
+            image = menus.launch_img()
+            qemu.launch(image, use64=True)
+
         if op1 == 'Burn a bootable disk image':
             print('Follow the prompts: select and image')
             response_image = menus.launch_img()
             target_disk = menus.what_disk()
-
             print("checking types....")
             dd.dd_write(sd_disk=target_disk, image=response_image)
+
+        if op1 == '__Burn a bootable disk image w/ verbatim raw':
+            print('Follow the prompts: select and image')
+            response_image = menus.launch_img()
+            target_disk = menus.what_disk()
+            print("checking types....")
+            dd.dd_write_verbatim(sd_disk=target_disk, image=response_image)
 
         if op1 == 'Find Pi devices on this network':
             nmap.nmap_search()

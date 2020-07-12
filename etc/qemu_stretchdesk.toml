@@ -1,12 +1,9 @@
 ###############################################################################################
-# clipi shortcut toml #
+# clipi shortcut toml
 ###############################################################################################
-
-# run:
 
 'Launch a Pi emulation' = true
 'image' = 'buster_desktop'
-'use64' = false  # optional 'true' uses aarch64 w/ cortex-a53- bootstrap install, needs extra attention during setup
 
 ###############################################################################################
 # defaults #
@@ -15,7 +12,6 @@
 # qemu:
 bin = "bin/kernel-qemu-4.14.79-stretch"
 qcow_size = "+8G"
-mem_vers = "256"  # versatilepb doesn"t support over 256
-aarch32 = "aarch32"
+mem_vers = "256"  # versatilepb doesn't support over 256M
 cpu32 = "arm1176"
 

@@ -30,6 +30,8 @@ class menus(object):
                 'Launch a Pi emulation',
                 'Burn a bootable disk image',
                 'Find Pi devices on this network',
+                '__Launch a Pi emulation w/ 64 bits',
+                '__Burn a bootable disk image w/ verbatim raw',
                 'Utilities...'
             ]
         }
@@ -46,7 +48,7 @@ class menus(object):
                 'Cleanup...',
                 'Install clipi as alias',
                 'Check / install dependencies',
-                'TODO: Launch some emulations w/ virtual network bridge'
+                'Check / build kernel & gcc tools'
             ]
         }
         answers = prompt(utils_1)

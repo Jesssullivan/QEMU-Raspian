@@ -42,8 +42,8 @@ class kernel(object):
         if platform == "linux":
             print("environment: detected Linux, continuing with apt-get...")
 
-    @classmethod
-    def depends(cls):
+    @staticmethod
+    def depends():
         print('\npreparing kernel depends...\n')
         subprocess.Popen("sudo chmod u+x kernel_sh/kernel_depends.sh", shell=True).wait()
 
@@ -107,7 +107,7 @@ class kernel(object):
     """
 
     @classmethod
-    def replace_fstab(cls, image, block=0):
+    def replace_fstab(cls, image):
         # `image` currently must the path of a *.img file (not the source.toml name)
         kernel.check_build_dirs(image=image)
         # mount must use short path names due to file name encryption silliness
