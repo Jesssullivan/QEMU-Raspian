@@ -1,0 +1,14 @@
+###############################################################################################
+# clipi shortcut toml
+###############################################################################################
+
+# 32 bit defaults:
+'kernel' = "bin/ARMv6/kernel-qemu-4.14.79-stretch"  # armhf, default 32 bit kernel
+'M' = 'versatilepb'  # armhf, default 32 bit device
+'m' = "256"  # versatilepb doesn"t support over 256M
+'cpu' = "arm1176"  #  ARMv6, 32 bit
+'qcow_size' = "+8G"  # expanded virtual volume size
+'dtb' = "bin/ARMv6/versatile-pb.dtb"
+'append' = "root=/dev/sda2 panic=1 rootfsrtype=ext4 rw"
+'**args' = "-no-reboot -serial stdio "
+

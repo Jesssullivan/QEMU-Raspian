@@ -5,3 +5,4 @@
 'Burn a bootable disk image' = true
 'image' = 'octoprint'
 'target_disk' = 'sdc'
+'verbatim' = true

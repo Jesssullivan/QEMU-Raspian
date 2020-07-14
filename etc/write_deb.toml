@@ -3,6 +3,5 @@
 ###############################################################################################
 
 'Burn a bootable disk image' = true
-'verbatim' = true
 'image' = 'debian_daily'
 'target_disk' = 'sdc'

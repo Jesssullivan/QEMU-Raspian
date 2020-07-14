@@ -11,7 +11,8 @@
 
 
 ***Emulate:***    
-`clipi` virtualizes many common sbc operating systems with QEMU, and can play with both 32 bit and 64 bit operating systems.  Select from any of the included distributions (or add your own to [/sources.toml](https://github.com/Jesssullivan/clipi/blob/master/etc/sources.toml)!) and `clipi` will handle the rest.   
+`clipi` virtualizes many common sbc operating systems with QEMU, and can play with both 32 bit and 64 bit operating systems.    
+-  *Select from any of the included distributions (or add your own to [/sources.toml](https://github.com/Jesssullivan/clipi/blob/master/etc/sources.toml)!) and `clipi` will handle the rest.*
         
 ***Organize:***    
 `clipi` builds and maintains organized directories for each OS as well a [persistent & convenient .qcow2](https://www.qemu.org/docs/master/interop/qemu-img.html)  QEMU disk image.           
@@ -21,50 +22,57 @@
 ***Write:***    
 `clipi` burns emulations to external disks!  Just insert a sd card or disk and follow the friendly prompts.  All files, `/home`, guest directories are written out.
 - *Need to pre-configure (or double check) wifi?  Add your ssid and password to [/wpa_supplicant.conf](https://github.com/Jesssullivan/clipi/blob/master/wpa_supplicant.conf) and copy the file to `/boot` in the freshly burned disk.*     
-- *Need pre-enabled ssh? copy [/ssh](https://github.com/Jesssullivan/clipi/blob/master/ssh) to `/boot` too.*
+- *Need pre-enabled ssh? copy [/ssh](https://github.com/Jesssullivan/clipi/blob/master/ssh) to `/boot` too.*            
+- *`clipi` provides options for writing from an emulation's `.qcow2` file via qemu...*         
+- *...as well as from the [source's](https://github.com/Jesssullivan/clipi/blob/master/etc/sources.toml) raw image file with the `verbatim` argument*           
     
         
 ***Manage:***   
 `clipi` can find the addresses of all the Raspberry Pi devices on your local network.       
-- Need to do this a lot?  `clipi` can install itself as a Bash alias (option under the ```Utilities...``` menu, fire it up whenever you want.           
+- *Need to do this a lot?  `clipi` can install itself as a Bash alias (option under the ```Utilities...``` menu, fire it up whenever you want.*          
 
     
 ***Shortcuts:***      
        
-Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https://github.com/toml-lang/toml) file [(...or you can use yaml)](https://yaml.org/).   
+Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https://github.com/toml-lang/toml) ([or yaml](https://yaml.org/)) file.              
+-  *Shortcut files access clipi's tools in a similar fashion to the interactive menu:*       
+   
+```toml
+# <shortcut>.toml
+# you can access the same tools and functions visible in the interactive menu like so:
+'Burn a bootable disk image' = true  
+# same as selecting in the interactive cli
+'image' = 'octoprint'
+'target_disk' = 'sdc'  
+```     
+-  *`clipi` exposes many features only accessible via configuration file arguments, such as distribution options and emulation settings.*
+
+```toml
+# <shortcut>.toml
+# important qemu arguments can be provided via a shortcut file like so:
+'kernel' = "bin/ddebian/vmlinuz-4.19.0-9-arm64"
+'initrd' = "bin/ddebian/initrd.img-4.19.0-9-arm64"
+# qemu arguments like these use familiar qemu lexicon:
+'M' = "virt" 
+'m' = "2048"
+# default values are be edited the same way:
+'cpu' = "cortex-a53"
+'qcow_size' = "+8G"
+'append' = '"rw root=/dev/vda2 console=ttyAMA0 rootwait fsck.repair=yes memtest=1"'
+# extra arguments can be passed too:
+'**args' = " -device virtio-blk-device,drive=hd-root \\
+             -netdev user,id=net0 -no-reboot \\
+             -monitor stdio \\
+             -device virtio-net-device,netdev=net0 "
+
+```
     
-Supply a shortcut file like so:           
-```python3 clipi.py etc/find_pi.toml```         
-       
-`clipi` contains many features only accessible via configuration file arguments, such as 64 bit distribution options and emulation settings.
-       
-- take a look in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc) for some shortcut examples, here are some of mine:
-   - ***write_octoprint.toml:***            
-     fetches the latest octoprint image and burns it to a sd card inserted at `sdc` 
-   - ***find_pi.toml:***            
-     finds, prints all Raspberry Pi IPs on the local network.       
-   - ***cleanup.toml:***            
-     forcefully removes `/image` directory (where `clipi` builds and stores qemu emulations and disk images) 
-     and `/.pi`, where `clipi` may temporarily mount various partitions while setting everything up.
-   - ***qemu_dietpi.toml:***            
-     fetches and starts a buster dietpi (ARM v6) emulation.         
-   - ***qemu_stretchlite.toml:***            
-     fetches and starts a run-of-the-mill Raspbian stretch emulation without a desktop environment.         
-   - ***qemu_stretchdesk.toml:***                            
-     fetches and starts a run-of-the-mill Raspbian stretch emulation with the standard Raspbian a desktop environment. 
-   - ***write_deb.toml:***            
-     fetches a 64 bit Debian image and burns it to a sd card inserted at `sdc`.
-   - ***deb64.toml:***            
-     fetches and starts 64 bit Debian emulation.  
-   - ***write_pi64.toml:***            
-     fetches a 64 bit PiOS Buster image and burns it to a sd card inserted at `sdc`.
-   - ***retropie.toml:***                            
-     launch a (Pi3) retropie emulator emulation *(....recursively giggles recursively....  this is a joke xD)*
-   - ***pi64.toml:***            
-     fetches, assembles, starts a cranky 64 bit Raspbian buster emulation based on the 64 bit piOS Beta image.
-        
-- - -    
-    
+-  *Supply a shortcut file like so:*           
+```python3 clipi.py etc/find_pi.toml```   
+
+- *take a look in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc) for some shortcut examples and default values*
+
+
 <br>   
     
 ```shell script
@@ -78,12 +86,6 @@ pip3 install -r requirements.txt
 
 # begin cooking some Pi:
 python3 clipi.py
-``` 
-        
+```         
         
  <br>    
-    
-***`clipi` offers an interactive command line application designed to streamline the deployment of Raspberry Pi devices.  `clipi` is written in Python for Debian-based operating systems, with experimental support for Mac OS via [brew](https://brew.sh/).***
-           
-<br>    
-

@@ -46,8 +46,8 @@ class sources(object):
             }
             return source
 
-    @classmethod
-    def has_conf(cls):
+    @staticmethod
+    def has_conf():
         # soften argument / no argument
         try:
             if '.toml' in sys.argv[1]:
@@ -75,32 +75,11 @@ class sources(object):
                     except:
                         pass
 
-    @classmethod
-    def do_arg(cls, arg, default):
+    @staticmethod
+    def do_arg(arg, default):
         xargs = sources.load_args()
         try:
             k = xargs[arg]
             return k
-        except KeyError:
-            # print('KeyError error with ' + arg + ' ...')
-            return default
         except:
-            # print('config error with ' + arg + ' ...')
             return default
-
-    @classmethod
-    def opt_kwargs(cls, **kwargs):
-        return kwargs
-
-    @classmethod
-    def load_conf(cls):
-        try:
-            if sources.has_conf():
-                config = toml.load(sys.argv[1])
-                return config
-            else:
-                return None
-        except:
-            return None
-
-

@@ -10,7 +10,7 @@ Written by Jess Sullivan
 from common import *
 from alias import alias
 from sources import sources
-from PyInquirer import prompt
+from PyInquirer import prompt, Separator
 
 """
 menus.py:
@@ -28,31 +28,19 @@ class menus(object):
             'message': 'Options:',
             'choices': [
                 'Launch a Pi emulation',
-                'Burn a bootable disk image',
-                'Find Pi devices on this network',
                 '__Launch a Pi emulation w/ 64 bits',
+                'Burn a bootable disk image',
                 '__Burn a bootable disk image w/ verbatim raw',
-                'Utilities...'
-            ]
-        }
-        answers = prompt(menu_1)
-        return answers['menu_1']
-
-    @classmethod
-    def utils_menu(cls):
-        utils_1 = {
-            'type': 'list',
-            'name': 'utils_1',
-            'message': 'Options:',
-            'choices': [
+                'Find Pi devices on this network',
+                Separator('-----Utilities:-----'),
                 'Cleanup...',
                 'Install clipi as alias',
                 'Check / install dependencies',
                 'Check / build kernel & gcc tools'
             ]
         }
-        answers = prompt(utils_1)
-        return answers['utils_1']
+        answers = prompt(menu_1)
+        return answers['menu_1']
 
     @classmethod
     def launch_img(cls):
@@ -95,19 +83,3 @@ class menus(object):
         }
         response = prompt(target)
         return response['target']
-
-    @classmethod
-    def ask_brew(cls):
-        # on osx, use brew a the package manager of choice
-        brew_yn = {
-            'type': 'list',
-            'name': 'brew',
-            'message': 'install Brew?',
-            'choices': ['Yes',
-                        'No'],
-        }
-        result = prompt(brew_yn)
-        if result == 'Yes':
-            return True
-        else:
-            return False

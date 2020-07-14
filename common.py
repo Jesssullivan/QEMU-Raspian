@@ -22,8 +22,8 @@ class common(object):
 
     bin_url = "http://clipi-bins.s3.amazonaws.com/"
 
-    @classmethod
-    def is_installed(cls, cmd):
+    @staticmethod
+    def is_installed(cmd):
         print('checking if ' + cmd + ' is present...')
         if not which(cmd):
             print("didn't find " + cmd)
@@ -54,8 +54,8 @@ class common(object):
                 subprocess.Popen(brew_string,
                                  shell=True).wait()
 
-    @classmethod
-    def ensure_dir(cls, dirname='image'):
+    @staticmethod
+    def ensure_dir(dirname='image'):
         if not os.path.isdir(dirname):
             os.mkdir(dirname)
 
@@ -94,6 +94,9 @@ class common(object):
         if not cls.is_installed(cmd='qemu-system-arm'):
             cls.dep_install(dep='qemu-system-arm')
 
+        if not cls.is_installed(cmd='qemu-system-aarch64'):
+            cls.dep_install(dep='qemu-system-aarch64')
+
         if not cls.is_installed(cmd='dd'):
             cls.dep_install(dep='dd')
 
@@ -105,6 +108,9 @@ class common(object):
 
         # if not cls.is_installed(cmd='texinfo'):
             # cls.dep_install(dep='texinfo')
+
+        # if not cls.is_installed(cmd='qemu-system-aarch64'):
+        #    cls.dep_install(dep='qemu-system-aarch64')
 
     @classmethod
     def unzip(cls, input, output):
@@ -137,16 +143,21 @@ class common(object):
             sleep(.1)
             return 0
 
-    @classmethod
-    def restart(cls):
-        # behavior to cleanup & restart at main menu:
-        for x in range(3):
-            print('...\n')
-            sleep(.1)
-        print('complete. \n\n')
-        clipi_path = os.path.abspath(__file__)
+    @staticmethod
+    def restart(execute=None):
+        clipi_path = os.path.abspath(__file__).split('<')[0]
+        print('...\n')
+        sleep(.1)
+        print('...\n')
         sys.stdout.flush()
-        os.execl(sys.executable, clipi_path, *sys.argv)
+        if execute is None:
+            cmd = 'python3 ' + clipi_path + 'clipi.py '
+        else:
+            cmd = 'python3 ' + clipi_path + 'clipi.py ' + str(execute)
+        print(cmd)
+        proc = subprocess.Popen(cmd, shell=True)
+        print('re-executed clipi! ' +
+              '\n - @ pid ' + str(proc.pid))
 
     @classmethod
     def cleanup(cls):

@@ -1,0 +1,18 @@
+###############################################################################################
+# clipi shortcut toml
+###############################################################################################
+
+# 64 bit defaults:
+'kernel' = "bin/ddebian/vmlinuz-4.19.0-9-arm64"
+'initrd' = "bin/ddebian/initrd.img-4.19.0-9-arm64"
+'M' = "virt"
+'m' = "2048"
+'cpu' = "cortex-a53"
+'qcow_size' = "+8G"
+'append' = '"rw root=/dev/vda2 console=ttyAMA0 rootwait fsck.repair=yes memtest=1"'
+'**args' = " -device virtio-blk-device,drive=hd-root \\
+             -netdev user,id=net0 -no-reboot \\
+             -monitor stdio \\
+             -device virtio-net-device,netdev=net0 "
+
+

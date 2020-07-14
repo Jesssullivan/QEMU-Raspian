@@ -160,8 +160,8 @@ class kernel(object):
         common.dep_install(dep='fdisk', brew_dep='gptfdisk')
         sleep(.1)
 
-    @classmethod
-    def fdisk_read(cls, image):
+    @staticmethod
+    def fdisk_read(image):
         # ensure we've got fdisk- not sure yet if this works from osx via gptfdisk
         cmd = str('fdisk -l ' + image)
 

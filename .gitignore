@@ -14,6 +14,8 @@ usbip
 DDNS.py
 
 # common:
+wpa_supplicant.conf
+ssh
 __pycache__
 .broken
 .DS_Store
