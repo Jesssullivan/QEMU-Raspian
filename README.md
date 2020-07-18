@@ -71,12 +71,10 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 ```python3 clipi.py etc/find_pi.toml```   
 
 - *take a look in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc) for some shortcut examples and default values*
+         
         
 - - - 
-     
-     
-<br>    
-             
+        
 #### *TODOs & WIPs:*  
 
      
