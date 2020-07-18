@@ -49,21 +49,32 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 
 ```toml
 # <shortcut>.toml
+
 # important qemu arguments can be provided via a shortcut file like so:
 'kernel' = "bin/ddebian/vmlinuz-4.19.0-9-arm64"
 'initrd' = "bin/ddebian/initrd.img-4.19.0-9-arm64"
+
 # qemu arguments like these use familiar qemu lexicon:
 'M' = "virt" 
 'm' = "2048"
+
 # default values are be edited the same way:
 'cpu' = "cortex-a53"
 'qcow_size' = "+8G"
 'append' = '"rw root=/dev/vda2 console=ttyAMA0 rootwait fsck.repair=yes memtest=1"'
+
 # extra arguments can be passed too:
-'**args' = " -device virtio-blk-device,drive=hd-root \\
-             -netdev user,id=net0 -no-reboot \\
-             -monitor stdio \\
-             -device virtio-net-device,netdev=net0 "
+'**args' = """
+-device virtio-blk-device,drive=hd-root \
+-no-reboot -monitor stdio
+"""
+
+# additional network arguments can be passed like so:
+# (clipi may automatically modify network arguments depending on bridge / SLiRP settings)
+'network' = """
+-netdev bridge,br=br0,id=net0 \
+-device virtio-net-pci,netdev=net0
+"""
 
 ```
     
