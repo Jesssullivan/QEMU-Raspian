@@ -7,8 +7,8 @@
 # TODO: make internet connection stay alive while bridge is on
 
 # brctl addbr br0
-read IPETH0 <<< $(ip -o link | awk '$2 != "lo:" {print $2}')
-echo ${IPETH0//:}
+read CLIPINET <<< $(ip -o link | awk '$2 != "lo:" {print $2}')
+echo ${CLIPINET//:}
 
 sudo ip addr flush dev ${IPETH0//:}
 sudo brctl addif br0 ${IPETH0//:}
@@ -22,3 +22,4 @@ sudo ip link set dev tap0 up
 # start dhclient:
 echo -e "staring dhclient..."
 sudo dhclient br0
+ sudo ./network/runqemu.sh -hda image/2019-04-08-raspbian-stretch/2019-04-08-raspbian-stretch.qcow2

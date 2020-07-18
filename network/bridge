@@ -1,0 +1,10 @@
+Description="__clipi__ Network Bridge"
+Interface=br0
+Connection=bridge
+BindsToInterfaces=(wlp3s0)
+MACAddress=wlp3s0
+IP=static
+Address='192.168.10.20/24'
+Gateway='192.168.10.200'
+## Ignore (R)STP and immediately activate the bridge
+SkipForwardingDelay=yes

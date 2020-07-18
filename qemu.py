@@ -53,10 +53,13 @@ class qemu(object):
                                  )
                   )
         if bridge:
-            cmd += str(" -net nic,model=virtio,macaddr=" +
+            cmd += str(" -device virtio-net," +
                        str(cls.new_mac()) +
-                       " -net tap,ifname=tap0,script=network/qemu-ifup")
-        return cmd
+                       ",netdev=network0 -netdev tap,id=network0,ifname=tap0,script=script=network/qemu-ifup,downscript=no,vhost=on"
+                       )
+        print(cmd)
+        quit()
+       # return cmd
 
     @classmethod
     def construct_arm64(cls, qcow='', bridge=False):
@@ -81,9 +84,9 @@ class qemu(object):
                                  )
                   )
         if bridge:
-            cmd += str(" -net nic,model=virtio,macaddr=" +
+            cmd += str(" -device virtio-net," +
                        str(cls.new_mac()) +
-                       " -net tap,ifname=tap0,script=network/qemu-ifup"
+                       ",netdev=network0 -netdev tap,id=network0,ifname=tap0,script=script=network/qemu-ifup,downscript=no,vhost=on"
                        )
         else:
             cmd += sources.do_arg(arg='network',
@@ -193,11 +196,14 @@ class qemu(object):
 
     @staticmethod
     def check_bridge():
+        CLIPINET = "read CLIPINET <<< $(ip -o link | awk '$2 != " + '"lo:"' + " {print $2}')"
         if platform == 'darwin':
             print('bridge networking not available for mac OSX')
             quit()
         else:
             print('checking bridge network.....')
+            subprocess.Popen(CLIPINET,shell=True).wait()
+
             subprocess.Popen('sudo chmod u+x network/up_bridge.sh', shell=True).wait()
             sleep(.1)
             subprocess.Popen('sudo ./network/up_bridge.sh', shell=True)
@@ -213,13 +219,6 @@ class qemu(object):
         common.ensure_dir()
         common.ensure_bins()
         launch_qcow = qemu.ensure_img(image)
-
-        if bridge:
-            try:
-                cls.check_bridge()
-                sleep(.1)
-            except:
-                pass
 
         try:
             if os.path.isfile(names.any_img(image)):
