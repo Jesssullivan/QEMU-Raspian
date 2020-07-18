@@ -49,21 +49,32 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 
 ```toml
 # <shortcut>.toml
+
 # important qemu arguments can be provided via a shortcut file like so:
 'kernel' = "bin/ddebian/vmlinuz-4.19.0-9-arm64"
 'initrd' = "bin/ddebian/initrd.img-4.19.0-9-arm64"
+
 # qemu arguments like these use familiar qemu lexicon:
 'M' = "virt" 
 'm' = "2048"
+
 # default values are be edited the same way:
 'cpu' = "cortex-a53"
 'qcow_size' = "+8G"
 'append' = '"rw root=/dev/vda2 console=ttyAMA0 rootwait fsck.repair=yes memtest=1"'
+
 # extra arguments can be passed too:
-'**args' = " -device virtio-blk-device,drive=hd-root \\
-             -netdev user,id=net0 -no-reboot \\
-             -monitor stdio \\
-             -device virtio-net-device,netdev=net0 "
+'**args' = """
+-device virtio-blk-device,drive=hd-root \
+-no-reboot -monitor stdio
+"""
+
+# additional network arguments can be passed like so:
+# (clipi may automatically modify network arguments depending on bridge / SLiRP settings)
+'network' = """
+-netdev bridge,br=br0,id=net0 \
+-device virtio-net-pci,netdev=net0
+"""
 
 ```
     
@@ -71,8 +82,37 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 ```python3 clipi.py etc/find_pi.toml```   
 
 - *take a look in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc) for some shortcut examples and default values*
+         
+        
+- - - 
+        
+#### *TODOs & WIPs:*  
 
+     
+*bridge networking things:*        
+-  working on guest --> guest, bridge --> host, host only mode networking options.
+  as of 7/17/20 only SLiRP user mode networking works,
+   see branch [broken_bridge-networking](https://github.com/Jesssullivan/clipi/tree/broken_bridge-networking) 
+   to see what is currently cooking here 
+   
+         
+*kernel stuff:*   
+-  automate ramdisk & kernel extraction-
+ most functions to do so are all ready to go in /kernel.py
 
+- *other random kernel todos-*      
+    -  working on better options for building via qemu-debootstrap from chroot instead of debian netboot or native gcc  
+    -  add git specific methods to sources.py for mainline Pi linux kernel  
+        -  verify absolute binutils version    
+        -  need to get cracking on documentation for all this stuff       
+        
+    
+*gcp-io stuff:*   
+-  formalize ddns.py & dockerfile    
+-  make sure all ports (22, 80, 8765, etc) can up/down as reverse proxy     
+
+- - - 
+    
 <br>   
     
 ```shell script
@@ -87,5 +127,3 @@ pip3 install -r requirements.txt
 # begin cooking some Pi:
 python3 clipi.py
 ```         
-        
- <br>    

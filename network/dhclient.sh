@@ -22,4 +22,4 @@ sudo ip link set dev tap0 up
 # start dhclient:
 echo -e "staring dhclient..."
 sudo dhclient br0
- sudo ./network/runqemu.sh -hda image/2019-04-08-raspbian-stretch/2019-04-08-raspbian-stretch.qcow2
+sudo ./network/runqemu.sh -hda image/2019-04-08-raspbian-stretch/2019-04-08-raspbian-stretch.qcow2

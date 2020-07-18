@@ -13,7 +13,7 @@ from common import *
 from names import names
 from sources import sources
 from kernel import kernel
-from random import random
+import random
 import os
 import toml
 
@@ -37,8 +37,6 @@ class qemu(object):
                   sources.do_arg(arg='cpu', default='arm1176') +
                   " -m " +
                   sources.do_arg(arg='m', default='256') +  # versitilepb is limited to 256M
-                  # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
-                  # yes generic ARM virt is better and newer....xD
                   " -M " +
                   sources.do_arg(arg='M', default='versatilepb') +
                   " -dtb " +
@@ -55,11 +53,11 @@ class qemu(object):
         if bridge:
             cmd += str(" -device virtio-net," +
                        str(cls.new_mac()) +
-                       ",netdev=network0 -netdev tap,id=network0,ifname=tap0,script=script=network/qemu-ifup,downscript=no,vhost=on"
+                       ",netdev=network0 -netdev tap,id=network0,ifname=tap0,script=script=network/qemu-ifup.sh,"
+                       "downscript=network/qemu-ifdown.sh,vhost=on "
                        )
         print(cmd)
-        quit()
-       # return cmd
+        return cmd
 
     @classmethod
     def construct_arm64(cls, qcow='', bridge=False):
@@ -86,7 +84,8 @@ class qemu(object):
         if bridge:
             cmd += str(" -device virtio-net," +
                        str(cls.new_mac()) +
-                       ",netdev=network0 -netdev tap,id=network0,ifname=tap0,script=script=network/qemu-ifup,downscript=no,vhost=on"
+                       ",netdev=network0 -netdev tap,id=network0,ifname=tap0,script=script=network/qemu-ifup.sh,"
+                       "downscript=network/qemu-ifdown.sh,vhost=on "
                        )
         else:
             cmd += sources.do_arg(arg='network',
@@ -168,6 +167,15 @@ class qemu(object):
                     got = True
 
                 sleep(.25)
+            try:
+                if os.path.isfile(names.any_img(image)):
+                    subprocess.Popen(cls.construct_qemu_convert(img=names.any_img(image),
+                                                                qcow=names.src_qcow(image)),
+                                     shell=True).wait()
+                    sleep(.25)
+                    cls.do_qemu_expand(names.src_qcow(image))
+            except:
+                pass
 
         return names.any_qcow(image)
 
@@ -196,14 +204,15 @@ class qemu(object):
 
     @staticmethod
     def check_bridge():
-        CLIPINET = "read CLIPINET <<< $(ip -o link | awk '$2 != " + '"lo:"' + " {print $2}')"
         if platform == 'darwin':
             print('bridge networking not available for mac OSX')
             quit()
         else:
             print('checking bridge network.....')
-            subprocess.Popen(CLIPINET,shell=True).wait()
-
+            subprocess.Popen('sudo chmod u+x network/qemu-ifup.sh', shell=True).wait()
+            sleep(.1)
+            subprocess.Popen('sudo chmod u+x network/qemu-ifdown.sh', shell=True).wait()
+            sleep(.1)
             subprocess.Popen('sudo chmod u+x network/up_bridge.sh', shell=True).wait()
             sleep(.1)
             subprocess.Popen('sudo ./network/up_bridge.sh', shell=True)
@@ -233,6 +242,7 @@ class qemu(object):
         if use64:
             if bridge:
                 print('launching ARM 64 bit emulation, bridged networking')
+                cls.check_bridge()
                 subprocess.Popen(qemu.construct_arm64(qcow=launch_qcow), shell=True).wait()
                 quit()
             else:
@@ -242,7 +252,8 @@ class qemu(object):
         else:
             if bridge:
                 print('launching ARM 32 bit emulation, bridged networking')
-                subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow), shell=True).wait()
+                cls.check_bridge()
+                subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow, bridge=True), shell=True).wait()
                 quit()
             else:
                 print('launching ARM 32 bit emulation,  SLiRP networking')

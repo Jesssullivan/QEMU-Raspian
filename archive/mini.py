@@ -7,6 +7,8 @@ Written by Jess Sullivan
 @ https://transscendsurvival.org/
 """
 
+CLIPINET = "read CLIPINET <<< $(ip -o link | awk '$2 != " + '"lo:"' + " {print $2}')"
+
 import glob
 import os
 
