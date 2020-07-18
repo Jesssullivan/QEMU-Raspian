@@ -13,21 +13,22 @@ from common import *
 from names import names
 from sources import sources
 from kernel import kernel
+from random import random
 import os
 import toml
 
 """
 qemu.py:
 controls various qemu-system functions
-prepares disk image source for emulation- also isolates disk image kernel & ramdisk 
 """
 
 
 class qemu(object):
+
     # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
     # yes generic ARM virt is better and newer....xD
     @classmethod
-    def construct_arm1176(cls, qcow=''):
+    def construct_arm1176(cls, qcow='', bridge=False):
         cmd = str("qemu-system-arm " +
                   " -kernel " +
                   sources.do_arg(arg='kernel', default='bin/ARMv6/kernel-qemu-4.14.79-stretch') +
@@ -47,12 +48,13 @@ class qemu(object):
                   " -hda " + qcow +
                   # `**args` is just a catch all for passing any other qemu stuff
                   sources.do_arg(arg='**args',
-                                 default='"-no-reboot -serial stdio "')
+                                 default="  -no-reboot -serial stdio "
+                                 )
                   )
         return cmd
 
     @classmethod
-    def construct_arm64(cls, qcow=''):
+    def construct_arm64(cls, qcow='', bridge=False):
         cmd = str("qemu-system-aarch64 " +
                   " -kernel " +
                   sources.do_arg(arg='kernel', default="bin/ddebian/vmlinuz-4.19.0-9-arm64") +
@@ -68,12 +70,9 @@ class qemu(object):
                   sources.do_arg(arg='append',
                                  default='"rw root=/dev/vda2 console=ttyAMA0 rootwait fsck.repair=yes memtest=1"') +
                   " -drive " +
-                  " file=" + qcow + ",format=qcow2,if=sd,id=hd-root" +
+                  " file=" + qcow + ",format=qcow2,if=sd,id=hd-root " +
                   sources.do_arg(arg='**args',
-                                 default=str(" -device virtio-blk-device,drive=hd-root" +
-                                             " -netdev user,id=net0 " +
-                                             " -no-reboot -monitor stdio " +
-                                             " -device virtio-net-device,netdev=net0 ")
+                                 default=str("-no-reboot -monitor stdio")
                                  )
                   )
         return cmd
@@ -153,61 +152,55 @@ class qemu(object):
 
         return names.any_qcow(image)
 
-    @classmethod
-    def get_network_depends(cls):
+    """
+    @staticmethod
+    def get_network_depends():
         if platform == 'darwin':
             print('cannot install network bridge depends on mac OSX')
             return 0
         else:
             print('make sure /network is ready to install....')
-            subprocess.Popen('sudo chmod u+x network/apt_depends.sh', shell=True).wait()
+            subprocess.Popen('sudo chmod u+x network/apt_net_depends.sh', shell=True).wait()
             print('installing.....')
-            subprocess.Popen('./network/apt_depends.sh', shell=True).wait()
+            subprocess.Popen('./network/apt_net_depends.sh', shell=True).wait()
             sleep(.1)
             print('done.')
 
-    @classmethod
-    def start_dhclient(cls):
+    @staticmethod
+    def new_mac():
+        oui_bits = [0x52, 0x54, 0x00]
+        for x in range(256):
+            mac = oui_bits + [
+                random.randint(0x00, 0xff),
+                random.randint(0x00, 0xff),
+                random.randint(0x00, 0xff)]
+            return ':'.join(["%02x" % x for x in mac])
+
+    @staticmethod
+    def check_bridge():
+        CLIPINET = "read CLIPINET <<< $(ip -o link | awk '$2 != " + '"lo:"' + " {print $2}')"
         if platform == 'darwin':
-            print('cannot use dhclient networking on mac OSX')
-            return 0
+            print('bridge networking not available for mac OSX')
+            quit()
         else:
-            print('launching dhclient thread.....')
-            subprocess.Popen('sudo chmod u+x network/dhclient.sh', shell=True).wait()
-            sleep(.25)
-            subprocess.Popen('./network/dhclient.sh', shell=True).wait()
+            print('checking bridge network.....')
+            subprocess.Popen(CLIPINET,shell=True).wait()
+
+            subprocess.Popen('sudo chmod u+x network/up_bridge.sh', shell=True).wait()
             sleep(.1)
-            print('exited dhclient thread.')
+            subprocess.Popen('sudo ./network/up_bridge.sh', shell=True)
             sleep(.1)
+    """
 
     @classmethod
-    def launch(cls, image, use64=False):
-        common.main_install()
-        common.ensure_dir()
-        common.ensure_bins()
-        # launching 64 bit emulation is only accessible via explicitly
-        # setting `use_64` argument as `true` via toml / yaml argument file.
-        try:
-            if sources.has_conf():
-                config = toml.load(sys.argv[1])
-                conf = True
-            else:
-                config = None
-                conf = False
-        except:
-            config = None
-            conf = False
-
-        def arg_true(text):
-            try:
-                if config[text]:
-                    return True
-            except KeyError:
-                pass
-
+    def launch(cls, image, use64=False, bridge=False):
         # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
         # this way we can call to launch an image that we don't actually have yet,
         # letting qemu.ensure_img() go fetch & prepare a fresh one
+
+        common.main_install()
+        common.ensure_dir()
+        common.ensure_bins()
         launch_qcow = qemu.ensure_img(image)
 
         try:
@@ -220,15 +213,21 @@ class qemu(object):
         except:
             pass
 
-        if conf:
-            if arg_true('use64') or use64:
-                # to build kernel / ramdisk stuff elsewhere, see kernel.py
-                kernel.replace_fstab(image=image)
-                print('launching 64 bit emulation')
+        if use64:
+            if bridge:
+                print('launching ARM 64 bit emulation, bridged networking')
                 subprocess.Popen(qemu.construct_arm64(qcow=launch_qcow), shell=True).wait()
                 quit()
-
-        print('launching ARM 1176 emulation')
-        subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow),
-                         shell=True).wait()
-        quit()
+            else:
+                print('launching ARM 64 bit emulation, SLiRP networking')
+                subprocess.Popen(qemu.construct_arm64(qcow=launch_qcow, bridge=True), shell=True).wait()
+                quit()
+        else:
+            if bridge:
+                print('launching ARM 32 bit emulation, bridged networking')
+                subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow), shell=True).wait()
+                quit()
+            else:
+                print('launching ARM 32 bit emulation,  SLiRP networking')
+                subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow, bridge=True), shell=True).wait()
+                quit()

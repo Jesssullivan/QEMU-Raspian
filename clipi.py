@@ -6,7 +6,7 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
-
+from pprint import pprint
 import toml
 import sys
 import platform
@@ -52,7 +52,7 @@ class clipi(object):
                 return False
 
     def main(self):
-        
+
         if self.config is None:
             graphics = menus.main_menu()
             graphical = True
@@ -63,16 +63,29 @@ class clipi(object):
         if self.arg_true('Launch a Pi emulation', graphics):
             if graphical:
                 image = menus.launch_img()
+                settings = menus.image_settings()
+                if '32 Bit' in settings['bits']:
+                    if 'SLiRP' in settings['network']:
+                        qemu.launch(image, use64=False, bridge=False)
+                    else:
+                        qemu.launch(image, use64=False, bridge=True)
+                if '64 Bit' in settings['bits']:
+                    if 'SLiRP' in settings['network']:
+                        qemu.launch(image, use64=True, bridge=False)
+                    else:
+                        qemu.launch(image, use64=True, bridge=True)
             else:
                 image = sources.get_source()[self.config['image']]
-            qemu.launch(image)
-
-        if self.arg_true('__Launch a Pi emulation w/ 64 bits', graphics):
-            if graphical:
-                image = menus.launch_img()
-            else:
-                image = sources.get_source()[self.config['image']]
-            qemu.launch(image, use64=True)
+                if self.arg_true(text='use64'):
+                    if self.arg_true(text='bridge'): \
+                            qemu.launch(image, use64=True, bridge=True)
+                    else:
+                        qemu.launch(image, use64=True, bridge=False)
+                else:
+                    if self.arg_true(text='bridge'):
+                        qemu.launch(image, use64=False, bridge=True)
+                    else:
+                        qemu.launch(image, use64=False, bridge=False)
 
         if self.arg_true('Burn a bootable disk image', graphics):
             if graphical:
