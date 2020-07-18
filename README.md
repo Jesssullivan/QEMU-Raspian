@@ -79,7 +79,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 
      
 *bridge networking things:*        
--  working on guest --> guest, host --> bridge, host only mode networking options.
+-  working on guest --> guest, bridge --> host, host only mode networking options.
   as of 7/17/20 only SLiRP user mode networking works,
    see branch [broken_bridge-networking](https://github.com/Jesssullivan/clipi/tree/broken_bridge-networking) 
    to see what is currently cooking here 
