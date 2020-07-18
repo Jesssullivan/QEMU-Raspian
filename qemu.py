@@ -150,6 +150,16 @@ class qemu(object):
 
                 sleep(.25)
 
+            try:
+                if os.path.isfile(names.any_img(image)):
+                    subprocess.Popen(cls.construct_qemu_convert(img=names.any_img(image),
+                                                                qcow=names.src_qcow(image)),
+                                     shell=True).wait()
+                    sleep(.25)
+                    cls.do_qemu_expand(names.src_qcow(image))
+            except:
+                pass
+
         return names.any_qcow(image)
 
     """
@@ -202,16 +212,6 @@ class qemu(object):
         common.ensure_dir()
         common.ensure_bins()
         launch_qcow = qemu.ensure_img(image)
-
-        try:
-            if os.path.isfile(names.any_img(image)):
-                subprocess.Popen(cls.construct_qemu_convert(img=names.any_img(image),
-                                                            qcow=names.src_qcow(image)),
-                                 shell=True).wait()
-                sleep(.25)
-                cls.do_qemu_expand(names.src_qcow(image))
-        except:
-            pass
 
         if use64:
             if bridge:

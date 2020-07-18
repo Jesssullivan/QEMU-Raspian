@@ -27,13 +27,14 @@ class dd(object):
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
-        qemu.ensure_img(image)
-        print('preparing to write out image, unmount target....')
-        sleep(.1)
-        img = names.any_qcow(image)
-        print('writing ' + img + ' to target....')
+        img = qemu.ensure_img(image)
+
+        umount_cmd = str('umount /dev/' + str(sd_disk) + ' 2>/dev/null || true')
+        subprocess.Popen(umount_cmd, shell=True).wait()
+
+        print('writing to target....')
         dd_cmd = str('sudo qemu-img dd -f qcow2 -O raw bs=1M ' +
-                     ' if=' + img +
+                     ' if=' + str(img) +
                      ' of=/dev/' + str(sd_disk))
         print('working....')
         subprocess.Popen(dd_cmd, shell=True).wait()
@@ -50,8 +51,6 @@ class dd(object):
 
         qemu.ensure_img(image)
         print('preparing to write out image using verbatim dd utility...')
-        sleep(.1)
-
         print('unmounting target....')
         umount_cmd = str('umount /dev/' + str(sd_disk) + ' 2>/dev/null || true')
         subprocess.Popen(umount_cmd, shell=True).wait()

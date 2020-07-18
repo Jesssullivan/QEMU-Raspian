@@ -149,7 +149,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('keyboard interrupt, exiting...')
         sys.exit(1)
-
-    except:
-        print('exiting clipi...')
-        quit()

@@ -71,8 +71,34 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 ```python3 clipi.py etc/find_pi.toml```   
 
 - *take a look in [/etc](https://github.com/Jesssullivan/clipi/tree/master/etc) for some shortcut examples and default values*
+        
+<br>    
+  
+   
+***bridge networking things:***      
+-  working on guest --> guest, host --> bridge, host only mode networking options.
+  as of 7/17/20 only SLiRP user mode networking works,
+   see branch [broken_bridge-networking](https://github.com/Jesssullivan/clipi/tree/broken_bridge-networking) 
+   to see what is currently cooking here 
+   
+         
+***kernel stuff:***   
+-  automate ramdisk & kernel extraction-
+ most functions to do so are all ready to go in /kernel.py
 
+- ***other random kernel todos-***      
+-  working on better options for building via qemu-debootstrap from chroot instead of debian netboot or native gcc  
+-  add git specific methods to sources.py for mainline Pi linux kernel  
+    -  verify absolute binutils version    
+    -  need to get cracking on documentation for all this stuff       
+    
+    
+*gcp-io stuff:*   
+-  formalize ddns.py & dockerfile    
+-  make sure all ports (22, 80, 8765, etc) can up/down as reverse proxy     
 
+- - - 
+    
 <br>   
     
 ```shell script
@@ -87,6 +113,3 @@ pip3 install -r requirements.txt
 # begin cooking some Pi:
 python3 clipi.py
 ```         
-        
- <br>    
-    
