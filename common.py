@@ -168,4 +168,3 @@ class common(object):
             print('...\n')
             sleep(.1)
         print('complete. \n\n')
-
