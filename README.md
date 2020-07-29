@@ -88,6 +88,8 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
         
 #### *TODOs & WIPs:*  
 
+*7/28/20:*  
+-  
      
 *bridge networking things:*        
 -  working on guest --> guest, bridge --> host, host only mode networking options.
@@ -98,7 +100,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
          
 *kernel stuff:*   
 -  automate ramdisk & kernel extraction-
- most functions to do so are all ready to go in /kernel.py
+ some functions to do so are all ready to go in /kernel.py
 
 - *other random kernel todos-*      
     -  working on better options for building via qemu-debootstrap from chroot instead of debian netboot or native gcc  
@@ -127,3 +129,5 @@ pip3 install -r requirements.txt
 # begin cooking some Pi:
 python3 clipi.py
 ```         
+    
+- - - 
