@@ -87,9 +87,6 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 - - - 
         
 #### *TODOs & WIPs:*  
-
-*7/28/20:*  
--  
      
 *bridge networking things:*        
 -  working on guest --> guest, bridge --> host, host only mode networking options.
