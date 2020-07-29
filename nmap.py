@@ -19,9 +19,13 @@ Pi devices are matched by OUI bits
 
 class nmap(object):
 
-    @classmethod
-    def nmap_search(cls):
-        print('Uses nmap to find local Pi devices by MAC address....')
+    oui_dict = {'B8:27:EB': 'Pi Device <= 3', 'DC:A6:32': 'Pi Device >= 4'}
+
+    @staticmethod
+    def _search(oui=''):
+
+        print('Uses nmap to find local Pi devices by OUI --> MAC address....')
+
         # just to make sure nmap is available
         common.main_install()
 
@@ -33,9 +37,18 @@ class nmap(object):
 
         # execute nmap:
         print('\n ...starting search for Pi devices, this may take a while... \n')
+
         cmd = "sudo nmap -sP " \
               + ip_quad[0] + \
               "." + ip_quad[1] + ".1.1/24" + \
-              " | awk '/^Nmap/{ip=$NF}/B8:27:EB/{print ip}'"
-        subprocess.Popen(cmd, shell=True).wait()
+              " | awk '/^Nmap/{ip=$NF}/" + oui + "/{print ip}'"
+
+        search = subprocess.Popen(cmd, shell=True).wait()
+        # todo- parse & sort by wifi module version (3|4);
+        # - search.stdout.read() ...
+
+    @classmethod
+    def nmap_search(cls):
+        for oui in nmap.oui_dict.keys():
+            nmap._search(oui=oui)
         print('\n ...search complete. \n')

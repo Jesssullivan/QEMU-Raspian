@@ -70,7 +70,7 @@ class qemu(object):
                   sources.do_arg(arg='append',
                                  default='"rw root=/dev/vda2 console=ttyAMA0 rootwait fsck.repair=yes memtest=1"') +
                   " -drive " +
-                  " file=" + qcow + ",format=qcow2,if=sd,id=hd-root " +
+                  " file=" + qcow + ",format=qcow2,id=hd-root " +
                   sources.do_arg(arg='**args',
                                  default=str("-no-reboot -monitor stdio")
                                  )
