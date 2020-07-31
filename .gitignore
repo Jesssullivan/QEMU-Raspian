@@ -1,3 +1,7 @@
+# mini:
+bin
+bin/**
+
 # local build dirs:
 image
 image/**
