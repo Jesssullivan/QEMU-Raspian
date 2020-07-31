@@ -24,11 +24,6 @@ class nmap(object):
     @staticmethod
     def _search(oui=''):
 
-        print('Uses nmap to find local Pi devices by OUI --> MAC address....')
-
-        # just to make sure nmap is available
-        common.main_install()
-
         # find the first two ip quadrants from which to increment:
         get_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         get_socket.connect(("8.8.8.8", 80))
@@ -49,6 +44,13 @@ class nmap(object):
 
     @classmethod
     def nmap_search(cls):
+
+        # just to make sure nmap is available
+        common.main_install()
+
+        print('Uses nmap to find local Pi devices by OUI --> MAC address....')
+
         for oui in nmap.oui_dict.keys():
             nmap._search(oui=oui)
+
         print('\n ...search complete. \n')

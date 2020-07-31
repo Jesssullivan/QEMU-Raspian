@@ -12,7 +12,7 @@
 
 ***Emulate:***    
 `clipi` virtualizes many common sbc operating systems with QEMU, and can play with both 32 bit and 64 bit operating systems.    
--  *Select from any of the included distributions (or add your own to [/sources.toml](https://github.com/Jesssullivan/clipi/blob/master/etc/sources.toml)!) and `clipi` will handle the rest.*
+-  *Select from any of the included distributions (or add your own to [/sources.toml](https://github.com/Jesssullivan/clipi/blob/master/sources.toml)!) and `clipi` will handle the rest.*
         
 ***Organize:***    
 `clipi` builds and maintains organized directories for each OS as well a [persistent & convenient .qcow2](https://www.qemu.org/docs/master/interop/qemu-img.html)  QEMU disk image.           
@@ -116,8 +116,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
     
 ```shell script
 # clone:
-git clone https://github.com/Jesssullivan/clipi
-cd clipi
+git clone https://github.com/Jesssullivan/clipi && cd clipi
 
 # preheat:
 pip3 install -r requirements.txt
@@ -128,3 +127,17 @@ python3 clipi.py
 ```         
     
 - - - 
+
+***For write only (excludes /bin):***
+``` shell script
+
+git clone ---branch=mini --depth=1 https://github.com/Jesssullivan/clipi && cd clipi
+
+# preheat:
+pip3 install -r requirements.txt
+# (or pip install -r requirements.txt)
+
+# begin cooking some Pi:
+python3 clipi.py
+```
+
