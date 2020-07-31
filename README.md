@@ -131,7 +131,7 @@ python3 clipi.py
 ***For write only (excludes /bin):***
 ``` shell script
 
-git clone ---branch=mini --depth=1 https://github.com/Jesssullivan/clipi && cd clipi
+git clone --branch=mini --depth=1 https://github.com/Jesssullivan/clipi && cd clipi
 
 # preheat:
 pip3 install -r requirements.txt
