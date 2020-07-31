@@ -112,7 +112,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
 
 - - - 
     
-### *Cook & Contribute:  
+### *Cook & Contribute:*  
     
 - - -     
     
