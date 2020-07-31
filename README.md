@@ -141,3 +141,20 @@ pip3 install -r requirements.txt
 python3 clipi.py
 ```
 
+- - - 
+        
+        
+###Desktop?     
+    
+- *check out [this great script for snagging a nice desktop environment](https://github.com/wimpysworld/desktopify)*
+    
+    
+***Ubuntu Budgie --> Pi 4:***
+
+```shell script
+# Cook Pi:
+python3 clipi.py etc/write_ubuntu64_pi4.toml 
+
+# Consume Pi:
+git clone https://github.com/wimpysworld/desktopify.git && sudo ./desktopify --de ubuntu-budgie
+```
