@@ -118,7 +118,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
     
 <br>   
     
-```shell script
+``` shell script
 # clone:
 git clone https://github.com/Jesssullivan/clipi && cd clipi
 
@@ -135,6 +135,8 @@ python3 clipi.py
 - - - 
 
 ### *For write only (excludes /bin):*
+
+    
 ``` shell script
 
 git clone --branch=mini --depth=1 https://github.com/Jesssullivan/clipi && cd clipi
@@ -157,7 +159,7 @@ python3 clipi.py
     
 ***Ubuntu Budgie --> Pi 4:***
 
-```shell script
+``` shell script
 # Cook Pi:
 python3 clipi.py etc/write_ubuntu64_pi4.toml 
 
