@@ -165,4 +165,3 @@ python3 clipi.py etc/write_ubuntu64_pi4.toml
 
 # Consume Pi:
 git clone https://github.com/wimpysworld/desktopify.git && sudo ./desktopify --de ubuntu-budgie
-```
