@@ -162,46 +162,6 @@ class qemu(object):
 
         return names.any_qcow(image)
 
-    """
-    @staticmethod
-    def get_network_depends():
-        if platform == 'darwin':
-            print('cannot install network bridge depends on mac OSX')
-            return 0
-        else:
-            print('make sure /network is ready to install....')
-            subprocess.Popen('sudo chmod u+x network/apt_net_depends.sh', shell=True).wait()
-            print('installing.....')
-            subprocess.Popen('./network/apt_net_depends.sh', shell=True).wait()
-            sleep(.1)
-            print('done.')
-
-    @staticmethod
-    def new_mac():
-        oui_bits = [0x52, 0x54, 0x00]
-        for x in range(256):
-            mac = oui_bits + [
-                random.randint(0x00, 0xff),
-                random.randint(0x00, 0xff),
-                random.randint(0x00, 0xff)]
-            return ':'.join(["%02x" % x for x in mac])
-
-    @staticmethod
-    def check_bridge():
-        CLIPINET = "read CLIPINET <<< $(ip -o link | awk '$2 != " + '"lo:"' + " {print $2}')"
-        if platform == 'darwin':
-            print('bridge networking not available for mac OSX')
-            quit()
-        else:
-            print('checking bridge network.....')
-            subprocess.Popen(CLIPINET,shell=True).wait()
-
-            subprocess.Popen('sudo chmod u+x network/up_bridge.sh', shell=True).wait()
-            sleep(.1)
-            subprocess.Popen('sudo ./network/up_bridge.sh', shell=True)
-            sleep(.1)
-    """
-
     @classmethod
     def launch(cls, image, use64=False, bridge=False):
         # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
