@@ -118,7 +118,7 @@ Shortcuts & configuration arguments can be passed to `clipi` as a [.toml](https:
     
 <br>   
     
-``` shell script
+```Bash
 # clone:
 git clone https://github.com/Jesssullivan/clipi && cd clipi
 
@@ -137,7 +137,7 @@ python3 clipi.py
 ### *For write only (excludes /bin):*
 
     
-``` shell script
+```Bash
 
 git clone --branch=mini --depth=1 https://github.com/Jesssullivan/clipi && cd clipi
 
@@ -154,14 +154,15 @@ python3 clipi.py
         
 ### *Desktop?  Budgie?*        
     
-- *check out [this great script for snagging a nice desktop environment](https://github.com/wimpysworld/desktopify)*
-    
-    
-***Ubuntu Budgie --> Pi 4:***
-
-``` shell script
+- ***check out [this great script for snagging a nice desktop environment](https://github.com/wimpysworld/desktopify)***                        
+- *Ubuntu Budgie --> Pi 4:*
+                
+```Bash
 # Cook Pi:
 python3 clipi.py etc/write_ubuntu64_pi4.toml 
 
 # Consume Pi:
 git clone https://github.com/wimpysworld/desktopify.git && sudo ./desktopify --de ubuntu-budgie
+```
+                
+- - -   
