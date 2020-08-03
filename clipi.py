@@ -6,6 +6,7 @@ Written by Jess Sullivan
 @ https://github.com/Jesssullivan/clipi
 @ https://transscendsurvival.org/
 """
+import threading
 from pprint import pprint
 import toml
 import sys
@@ -66,26 +67,36 @@ class clipi(object):
                 settings = menus.image_settings()
                 if '32 Bit' in settings['bits']:
                     if 'SLiRP' in settings['network']:
-                        qemu.launch(image, use64=False, bridge=False)
+                        proc = qemu.launch(image, use64=False, bridge=False)
+                        t = threading.Thread(qemu.interact(proc=proc), daemon=True)
+                        t.start()
                     else:
-                        qemu.launch(image, use64=False, bridge=True)
+                        proc = qemu.launch(image, use64=False, bridge=True)
+                    proc.wait()
+                    quit()
+
                 if '64 Bit' in settings['bits']:
                     if 'SLiRP' in settings['network']:
-                        qemu.launch(image, use64=True, bridge=False)
+                        proc, err = qemu.launch(image, use64=True, bridge=False)
                     else:
-                        qemu.launch(image, use64=True, bridge=True)
+                        proc, err = qemu.launch(image, use64=True, bridge=True)
+                    proc.wait()
+                    quit()
+
             else:
                 image = sources.get_source()[self.config['image']]
                 if self.arg_true(text='use64'):
                     if self.arg_true(text='bridge'): \
-                            qemu.launch(image, use64=True, bridge=True)
+                        proc, err = qemu.launch(image, use64=True, bridge=True)
                     else:
-                        qemu.launch(image, use64=True, bridge=False)
+                        proc, err = qemu.launch(image, use64=True, bridge=False)
                 else:
                     if self.arg_true(text='bridge'):
-                        qemu.launch(image, use64=False, bridge=True)
+                        proc, err = qemu.launch(image, use64=False, bridge=True)
                     else:
-                        qemu.launch(image, use64=False, bridge=False)
+                        proc, err = qemu.launch(image, use64=False, bridge=False)
+                proc.wait()
+                quit()
 
         if self.arg_true('Burn a bootable disk image', graphics):
             if graphical:

@@ -48,7 +48,7 @@ class qemu(object):
                   " -hda " + qcow +
                   # `**args` is just a catch all for passing any other qemu stuff
                   sources.do_arg(arg='**args',
-                                 default="  -no-reboot -serial stdio "
+                                 default=" -no-reboot -serial stdio -net user,hostfwd=tcp::10022-:22 -net nic"
                                  )
                   )
         return cmd
@@ -72,7 +72,7 @@ class qemu(object):
                   " -drive " +
                   " file=" + qcow + ",format=qcow2,id=hd-root " +
                   sources.do_arg(arg='**args',
-                                 default=str("-no-reboot -monitor stdio")
+                                 default=str("-no-reboot -serial stdio")
                                  )
                   )
         return cmd
@@ -163,6 +163,64 @@ class qemu(object):
         return names.any_qcow(image)
 
     @classmethod
+    def mount_qcow(cls, qcow):
+        print('mounting & modifying qcow2...')
+        if platform == 'darwin':
+            print('OSX method not implemented yet, exiting')
+            return 0
+        else:
+            print('verifying nbd....')
+            subprocess.Popen('sudo modprobe nbd max_part=8', shell=True).wait()
+            print('installing.....')
+            subprocess.Popen('qemu-nbd --connect=/dev/nbd0 /var/lib/vz/images/100/vm-100-disk-1.qcow2', shell=True).wait()
+            sleep(.1)
+            print('done.')
+
+
+    """
+    The following network & bridging functions have not been reimplemented yet
+
+    @staticmethod
+    def get_network_depends():
+        if platform == 'darwin':
+            print('cannot install network bridge depends on mac OSX')
+            return 0
+        else:
+            print('make sure /network is ready to install....')
+            subprocess.Popen('sudo chmod u+x network/apt_net_depends.sh', shell=True).wait()
+            print('installing.....')
+            subprocess.Popen('./network/apt_net_depends.sh', shell=True).wait()
+            sleep(.1)
+            print('done.')
+
+    @staticmethod
+    def new_mac():
+        oui_bits = [0x52, 0x54, 0x00]
+        for x in range(256):
+            mac = oui_bits + [
+                random.randint(0x00, 0xff),
+                random.randint(0x00, 0xff),
+                random.randint(0x00, 0xff)]
+            return ':'.join(["%02x" % x for x in mac])
+
+    @staticmethod
+    def check_bridge():
+        CLIPINET = "read CLIPINET <<< $(ip -o link | awk '$2 != " + '"lo:"' + " {print $2}')"
+        if platform == 'darwin':
+            print('bridge networking not available for mac OSX')
+            quit()
+        else:
+            print('checking bridge network.....')
+            subprocess.Popen(CLIPINET, shell=True).wait()
+
+            subprocess.Popen('sudo chmod u+x network/up_bridge.sh', shell=True).wait()
+            sleep(.1)
+            subprocess.Popen('sudo ./network/up_bridge.sh', shell=True)
+            sleep(.1)
+
+    """
+
+    @classmethod
     def launch(cls, image, use64=False, bridge=False):
         # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
         # this way we can call to launch an image that we don't actually have yet,
@@ -176,18 +234,44 @@ class qemu(object):
         if use64:
             if bridge:
                 print('launching ARM 64 bit emulation, bridged networking')
-                subprocess.Popen(qemu.construct_arm64(qcow=launch_qcow), shell=True).wait()
-                quit()
+                proc, err = subprocess.Popen(cls.construct_arm64(qcow=launch_qcow),
+                                             shell=True,
+                                             stdout=subprocess.PIPE,
+                                             stdin=subprocess.PIPE)
             else:
                 print('launching ARM 64 bit emulation, SLiRP networking')
-                subprocess.Popen(qemu.construct_arm64(qcow=launch_qcow, bridge=True), shell=True).wait()
-                quit()
+                proc, err = subprocess.Popen(cls.construct_arm64(qcow=launch_qcow,
+                                                                 bridge=True),
+                                             shell=True,
+                                             stdout=subprocess.PIPE,
+                                             stdin=subprocess.PIPE)
+
         else:
             if bridge:
                 print('launching ARM 32 bit emulation, bridged networking')
-                subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow), shell=True).wait()
-                quit()
+                proc, err = subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow),
+                                             shell=True,
+                                             stdout=subprocess.PIPE,
+                                             stdin=subprocess.PIPE)
             else:
                 print('launching ARM 32 bit emulation,  SLiRP networking')
-                subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow, bridge=True), shell=True).wait()
-                quit()
+                proc = subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow,
+                                                                   bridge=True),
+                                             shell=True,
+                                             stdout=subprocess.PIPE,
+                                             stdin=subprocess.PIPE)
+        return proc
+
+    @classmethod
+    def interact(cls, proc, usr='pi', pwd='raspberry', cond=True):
+        while cond:
+            #print(proc.stdout.read())
+            """
+            sleep(.1)
+            if 'login' in str(proc.stdout.read()):
+                proc.communicate(input=usr)
+                continue
+            if 'password' in str(proc.stdout.read()):
+                proc.communicate(input=pwd)
+                continue
+            """
