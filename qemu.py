@@ -16,6 +16,7 @@ from kernel import kernel
 from random import random
 import os
 import toml
+import threading
 
 """
 qemu.py:
@@ -162,20 +163,50 @@ class qemu(object):
 
         return names.any_qcow(image)
 
+    @staticmethod
+    def check_build_dirs(image):
+        # `image` currently must the path of a *.img file
+        if not os.path.isdir(names.src_dir(image)):
+            os.mkdir(names.src_dir(image))
+
+        if not os.path.isdir(names.src_build(image)):
+            os.mkdir(names.src_build(image))
+
+        if not os.path.isdir(names.src_mnt(image)):
+            os.mkdir(names.src_mnt(image))
+
     @classmethod
-    def mount_qcow(cls, qcow):
-        print('mounting & modifying qcow2...')
+    def copyto_qcow(cls, img='', file='', path='home/pi/'):
+
         if platform == 'darwin':
             print('OSX method not implemented yet, exiting')
             return 0
-        else:
-            print('verifying nbd....')
-            subprocess.Popen('sudo modprobe nbd max_part=8', shell=True).wait()
-            print('installing.....')
-            subprocess.Popen('qemu-nbd --connect=/dev/nbd0 /var/lib/vz/images/100/vm-100-disk-1.qcow2', shell=True).wait()
-            sleep(.1)
-            print('done.')
 
+        print('copying to qcow2...')
+
+        source = sources.get_source()
+
+        image = source[img]
+        qcow = names.any_qcow(image)
+        mnt = names.src_mnt(image)
+
+        cls.check_build_dirs(image)
+
+        # qemu.copyto_qcow(img='stretch_lite', file='quick_sh/budgify.sh')
+        # because these commands may be tied down to variable disk & indexing speed,
+        # block each shell execution in clipi's thread w/ sleep()
+
+        ops = {
+            'verifying nbd....': subprocess.Popen('sudo modprobe nbd max_part=8', shell=True),
+            'connecting qcow2 to nbd....': subprocess.Popen('sudo qemu-nbd --connect=/dev/nbd0 ' + qcow, shell=True),
+            'mounting qcow2': subprocess.Popen('sudo mount /dev/nbd0 ' + mnt, shell=True),
+            str('copying ' + file): subprocess.Popen('sudo cp -rf ' + file + ' ' + mnt + path, shell=True),
+            'unmounting qcow2': subprocess.Popen('sudo umount ' + mnt, shell=True)
+        }
+        for operation in ops.keys():
+            print(operation)
+            ops[operation].wait()
+            sleep(.1)
 
     """
     The following network & bridging functions have not been reimplemented yet
@@ -256,16 +287,16 @@ class qemu(object):
             else:
                 print('launching ARM 32 bit emulation,  SLiRP networking')
                 proc = subprocess.Popen(cls.construct_arm1176(qcow=launch_qcow,
-                                                                   bridge=True),
-                                             shell=True,
-                                             stdout=subprocess.PIPE,
-                                             stdin=subprocess.PIPE)
+                                                              bridge=True),
+                                        shell=True,
+                                        stdout=subprocess.PIPE,
+                                        stdin=subprocess.PIPE)
         return proc
 
     @classmethod
     def interact(cls, proc, usr='pi', pwd='raspberry', cond=True):
         while cond:
-            #print(proc.stdout.read())
+            # print(proc.stdout.read())
             """
             sleep(.1)
             if 'login' in str(proc.stdout.read()):
@@ -275,3 +306,7 @@ class qemu(object):
                 proc.communicate(input=pwd)
                 continue
             """
+
+
+if __name__ == '__main__':
+    qemu.copyto_qcow(img='stretch_lite', file='quick_sh/budgify.sh')
