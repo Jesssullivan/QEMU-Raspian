@@ -16,7 +16,11 @@ from time import sleep
 from zipfile import ZipFile
 import requests
 from shutil import which
+
+import toml
 import xmltodict
+
+from sources import sources
 
 
 class common(object):
@@ -168,3 +172,32 @@ class common(object):
             print('...\n')
             sleep(.1)
         print('complete. \n\n')
+
+    @staticmethod
+    def _init_args():
+
+        def __init__(self):
+
+            try:
+                if sources.has_conf():
+                    self.config = toml.load(sys.argv[1])
+                else:
+                    self.config = None
+            except:
+                self.config = None
+
+        def arg_true(self, text='', menu=''):
+
+            if self.config is not None:
+                try:
+                    if self.config[text]:
+                        return True
+                    else:
+                        return False
+                except KeyError:
+                    return False
+            else:
+                if menu == text:
+                    return True
+                else:
+                    return False

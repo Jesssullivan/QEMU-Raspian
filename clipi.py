@@ -68,8 +68,7 @@ class clipi(object):
                 if '32 Bit' in settings['bits']:
                     if 'SLiRP' in settings['network']:
                         proc = qemu.launch(image, use64=False, bridge=False)
-                        t = threading.Thread(qemu.interact(proc=proc), daemon=True)
-                        t.start()
+
                     else:
                         proc = qemu.launch(image, use64=False, bridge=True)
                     proc.wait()
@@ -86,7 +85,7 @@ class clipi(object):
             else:
                 image = sources.get_source()[self.config['image']]
                 if self.arg_true(text='use64'):
-                    if self.arg_true(text='bridge'): \
+                    if self.arg_true(text='bridge'):
                         proc, err = qemu.launch(image, use64=True, bridge=True)
                     else:
                         proc, err = qemu.launch(image, use64=True, bridge=False)

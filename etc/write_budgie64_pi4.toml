@@ -2,7 +2,8 @@
 # clipi shortcut toml
 ###############################################################################################
 
-'Launch a Pi emulation' = true
-'image' = 'Pi64_OS_Beta'
-'use64' = true
-
+'Burn a bootable disk image' = true
+'image' = 'ubuntu_server_pi4_64'
+'target_disk' = 'sdc'
+'ssh' = true
+'wpa_supplicant' = true

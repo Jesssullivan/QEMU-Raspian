@@ -17,6 +17,7 @@ from random import random
 import os
 import toml
 import threading
+import paramiko
 
 """
 qemu.py:
@@ -36,7 +37,8 @@ class qemu(object):
                   " -cpu " +
                   sources.do_arg(arg='cpu', default='arm1176') +
                   " -m " +
-                  sources.do_arg(arg='m', default='256') +  # versitilepb is limited to 256M
+                  sources.do_arg(arg='m', default='256') +
+                  # versitilepb is limited to 256M
                   # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
                   # yes generic ARM virt is better and newer....xD
                   " -M " +
@@ -46,7 +48,7 @@ class qemu(object):
                   " -append " +
                   sources.do_arg(arg='append',
                                  default='"root=/dev/sda2 panic=1 rootfsrtype=ext4 rw" ') +
-                  " -hda " + qcow +
+                  " -hda " + str(qcow) +
                   # `**args` is just a catch all for passing any other qemu stuff
                   sources.do_arg(arg='**args',
                                  default=" -no-reboot -serial stdio -net user,hostfwd=tcp::10022-:22 -net nic"
@@ -185,11 +187,9 @@ class qemu(object):
         print('copying to qcow2...')
 
         source = sources.get_source()
-
-        image = source[img]
         qcow = names.any_qcow(image)
-        mnt = names.src_mnt(image)
 
+        mnt = names.src_mnt(image)
         cls.check_build_dirs(image)
 
         # qemu.copyto_qcow(img='stretch_lite', file='quick_sh/budgify.sh')
@@ -197,19 +197,35 @@ class qemu(object):
         # block each shell execution in clipi's thread w/ sleep()
 
         ops = {
-            'verifying nbd....': subprocess.Popen('sudo modprobe nbd max_part=8', shell=True),
-            'connecting qcow2 to nbd....': subprocess.Popen('sudo qemu-nbd --connect=/dev/nbd0 ' + qcow, shell=True),
-            'mounting qcow2': subprocess.Popen('sudo mount /dev/nbd0 ' + mnt, shell=True),
-            str('copying ' + file): subprocess.Popen('sudo cp -rf ' + file + ' ' + mnt + path, shell=True),
-            'unmounting qcow2': subprocess.Popen('sudo umount ' + mnt, shell=True)
+            'verifying nbd...': subprocess.Popen('sudo modprobe nbd max_part=8', shell=True).wait(),
+            'connecting qcow2 to nbd...': subprocess.Popen('sudo qemu-nbd --connect=/dev/nbd0 ' + qcow,
+                                                           shell=True).wait(),
+            'mounting qcow2...': subprocess.Popen('sudo mount /dev/nbd0p2 ' + mnt, shell=True).wait(),
+            str('copying ' + file + '...'): subprocess.Popen('sudo cp -rf ' + file + ' ' + mnt + path,
+                                                             shell=True).wait(),
+            'unmounting qcow2...': subprocess.Popen('sudo umount ' + mnt, shell=True).wait(),
+            'disconnecting nbd....': subprocess.Popen('sudo qemu-nbd -d /dev/nbd0',
+                                                      shell=True).wait(),
         }
+
         for operation in ops.keys():
-            print(operation)
-            ops[operation].wait()
             sleep(.1)
+            print(operation)
+            x = ops[operation]
+
+    @classmethod
+    def _ensure_ssh(cls, image):
+        if sources.do_arg('ssh', True):
+            cls.copyto_qcow(img=image, file='ssh')
+
+    @classmethod
+    def _ensure_wpa_supplicant(cls, image):
+        if sources.do_arg('wpa_supplicant', False):
+            cls.copyto_qcow(img=image, file='wpa_supplicant.conf')
 
     """
     The following network & bridging functions have not been reimplemented yet
+    """
 
     @staticmethod
     def get_network_depends():
@@ -249,18 +265,23 @@ class qemu(object):
             subprocess.Popen('sudo ./network/up_bridge.sh', shell=True)
             sleep(.1)
 
-    """
-
-    @classmethod
-    def launch(cls, image, use64=False, bridge=False):
+    @staticmethod
+    def _init(image):
         # "launch_qcow" is returned a .qcow2 after it has been verified to exist-
         # this way we can call to launch an image that we don't actually have yet,
         # letting qemu.ensure_img() go fetch & prepare a fresh one
-
         common.main_install()
         common.ensure_dir()
         common.ensure_bins()
         launch_qcow = qemu.ensure_img(image)
+        qemu._ensure_ssh(image)
+        qemu._ensure_wpa_supplicant(image)
+        return launch_qcow
+
+    @classmethod
+    def launch(cls, image, use64=False, bridge=False):
+
+        launch_qcow = cls._init(image)
 
         if use64:
             if bridge:
@@ -294,19 +315,64 @@ class qemu(object):
         return proc
 
     @classmethod
-    def interact(cls, proc, usr='pi', pwd='raspberry', cond=True):
-        while cond:
-            # print(proc.stdout.read())
-            """
-            sleep(.1)
-            if 'login' in str(proc.stdout.read()):
-                proc.communicate(input=usr)
-                continue
-            if 'password' in str(proc.stdout.read()):
-                proc.communicate(input=pwd)
-                continue
-            """
+    def interact(cls, image, file, usr='pi', pwd='raspberry'):
+        print('initializing image...')
+        cls._init(image)
+
+        sleep(.1)
+        print('writing ' + file.__str__() + '...')
+        cls.copyto_qcow(img=image, file=file)
+
+        sleep(.1)
+        print('checking guest...')
+
+        if sources.do_arg('use64', False):
+            use64 = True
+        else:
+            use64 = False
+
+        if sources.do_arg('bridge', False):
+            bridge = True
+        else:
+            bridge = False
+
+        print('starting guest...')
+        cls.launch(image=image, use64=use64, bridge=bridge)
+
+        sleep(2)
+        print('starting ssh client...')
+        conn = False
+
+        ssh = paramiko.SSHClient()
+        ip = 'localhost'
+        port = 10022
+
+        while not conn:
+            sleep(3)
+            try:
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(ip, port, usr, pwd)
+                print('\nclipi ssh client is connected!\n')
+                conn = True
+
+            except ConnectionResetError:
+                print('-')
+                sleep(1)
+                pass
+
+            except:
+                sleep(1)
+                pass
+
+            ssh.exec_command('sudo chmod u+x ' + file)
+            print('\n....\n')
+            ssh.exec_command('sudo ./' + file)
+            sleep(1)
+            ssh.close()
 
 
 if __name__ == '__main__':
-    qemu.copyto_qcow(img='stretch_lite', file='quick_sh/budgify.sh')
+    image = sources.get_source()['stretch_lite']
+    print(names.src_img(image))
+    qemu._ensure_ssh(image)
+    qemu.interact(image=names.src_img(image), file='quick_sh/budgify.sh')
