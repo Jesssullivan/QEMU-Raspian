@@ -29,6 +29,7 @@ class qemu(object):
 
     # for 32 bit guest use older, fairly reliable versatilepb instead if generic -virt device.
     # yes generic ARM virt is better and newer....xD
+
     @classmethod
     def construct_arm1176(cls, qcow='', bridge=False):
         cmd = str("qemu-system-arm " +
@@ -58,6 +59,7 @@ class qemu(object):
 
     @classmethod
     def construct_arm64(cls, qcow='', bridge=False):
+
         cmd = str("qemu-system-aarch64 " +
                   " -kernel " +
                   sources.do_arg(arg='kernel', default="bin/ddebian/vmlinuz-4.19.0-9-arm64") +
@@ -205,7 +207,7 @@ class qemu(object):
                                                              shell=True).wait(),
             'unmounting qcow2...': subprocess.Popen('sudo umount ' + mnt, shell=True).wait(),
             'disconnecting nbd....': subprocess.Popen('sudo qemu-nbd -d /dev/nbd0',
-                                                      shell=True).wait(),
+                                                      shell=True).wait()
         }
 
         for operation in ops.keys():
@@ -315,7 +317,40 @@ class qemu(object):
         return proc
 
     @classmethod
-    def interact(cls, image, file, usr='pi', pwd='raspberry'):
+    def _t_ssh(cls, usr='pi', pwd='raspberry', port=10022):
+
+        print('starting ssh client...')
+        conn = False
+        err_ct = 0
+
+        ip = 'localhost'
+        ssh_cmd = 'sshpass -p ' + pwd + ' ssh ' + usr + '@' + ip + ' -p ' + str(port)
+
+        while not conn and err_ct <= 12:
+            sleep(1)
+            try:
+                p = subprocess.Popen(ssh_cmd,
+                                 shell=True,
+                                 stdout=subprocess.PIPE,
+                                 stdin=subprocess.PIPE)
+                p.communicate('mike')[0].rstrip()
+
+                # conn = True
+
+            except ConnectionResetError:
+                print('Connection Error, continuing...')
+                err_ct += 1
+                sleep(1)
+                pass
+
+            except:
+                err_ct += 1
+                sleep(1)
+                pass
+
+    @classmethod
+    def _t_interact(cls, image, file):
+
         print('initializing image...')
         cls._init(image)
 
@@ -338,41 +373,35 @@ class qemu(object):
 
         print('starting guest...')
         cls.launch(image=image, use64=use64, bridge=bridge)
-
         sleep(2)
-        print('starting ssh client...')
-        conn = False
 
-        ssh = paramiko.SSHClient()
-        ip = 'localhost'
-        port = 10022
+    @classmethod
+    def guest_t(cls, image, file):
+        t = threading.Thread(target=cls._t_interact(image, file))
+        return t
 
-        while not conn:
-            sleep(3)
-            try:
-                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(ip, port, usr, pwd)
-                print('\nclipi ssh client is connected!\n')
-                conn = True
-
-            except ConnectionResetError:
-                print('-')
-                sleep(1)
-                pass
-
-            except:
-                sleep(1)
-                pass
-
-            ssh.exec_command('sudo chmod u+x ' + file)
-            print('\n....\n')
-            ssh.exec_command('sudo ./' + file)
-            sleep(1)
-            ssh.close()
+    @classmethod
+    def ssh_t(cls, usr='pi', pwd='raspberry', port=10022):
+        t = threading.Thread(target=cls._t_ssh(usr, pwd, port))
+        return t
 
 
 if __name__ == '__main__':
+
     image = sources.get_source()['stretch_lite']
-    print(names.src_img(image))
-    qemu._ensure_ssh(image)
-    qemu.interact(image=names.src_img(image), file='quick_sh/budgify.sh')
+    print('testing image: ' + names.src_img(image))
+
+    common.main_install()
+    common.ensure_dir()
+    common.ensure_bins()
+    qemu.ensure_img(image)
+
+    print('starting guest launcher thread...')
+    guest = qemu.guest_t(image, file='quick_sh/budgify.sh')
+    guest.start()
+    sleep(10)
+
+    print('starting ssh control thread...')
+    ssh = qemu.ssh_t()
+    ssh.start()
+
