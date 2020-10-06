@@ -1,9 +1,9 @@
 # clipi:        
 
-
-***An efficient toolset for Pi devices***
-
-*Emulate, organize, burn, manage a variety of distributions for Raspberry Pi.*
+***Raspberry Pi automation tools for Debian distros- emulate, organize, burn & manage***
+ 
+         
+*An efficient toolset for Pi devices*
 
 - - -
 
